@@ -339,7 +339,7 @@ Under the null hypothesis:
 
 $$H_{0}:\, q \le q^{\star}$$
 
-We may observe overlap $q^{\star}$ genes by random sampling of $k$ genes **without** replacement.
+We may observe $q^{\star}$ (out of $k$) genes overlapping with a gene set of interest by random sampling of $k$ genes **without** replacement.
 
 Therefore, we can calculate the p-value:
 
