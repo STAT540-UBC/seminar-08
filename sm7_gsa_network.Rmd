@@ -52,7 +52,7 @@ Outline:
 
 * [Part 2: When we want to use gene-level scores to rank the importance](#part-2-score-based-gene-set-enrichment-analysis)
 
-* [deliverable](#deliverable)
+* [Deliverables](#deliverables)
 
 
 # Recap Differential Expression Analysis
@@ -753,7 +753,7 @@ gwas.fgsea %>%
     knitr::kable()
 ```
 
-# Deliverable
+# Deliverables
 
 ## Deliverable \#1 (1pt)
 

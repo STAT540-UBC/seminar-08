@@ -362,7 +362,7 @@ pre code {
 <li><p><a href="#recap-Differential-Expression-Analysis">Recap: Differential Expression analysis</a></p></li>
 <li><p><a href="#part-1-gene-set-analysis-testing-over-representation">Part 1: When we know how to draw lines between the significant and the insignificant</a></p></li>
 <li><p><a href="#part-2-score-based-gene-set-enrichment-analysis">Part 2: When we want to use gene-level scores to rank the importance</a></p></li>
-<li><p><a href="#deliverable">deliverable</a></p></li>
+<li><p><a href="#deliverables">Deliverables</a></p></li>
 </ul>
 </div>
 </div>
@@ -1680,101 +1680,101 @@ BiocManager::install(&quot;fgsea&quot;)</code></pre>
 <td align="left">KEGG_RIBOSOME</td>
 <td align="right">0.0000000</td>
 <td align="right">0.0000000</td>
-<td align="right">0.8140358</td>
+<td align="right">0.8266573</td>
 <td align="right">0.6856763</td>
-<td align="right">1.969602</td>
+<td align="right">1.959328</td>
 <td align="right">66</td>
 <td align="left">RPL31, RPL23A, RPL15</td>
 </tr>
 <tr class="even">
 <td align="left">KEGG_CELL_CYCLE</td>
-<td align="right">0.0001462</td>
-<td align="right">0.0093480</td>
+<td align="right">0.0001848</td>
+<td align="right">0.0171848</td>
 <td align="right">0.5188481</td>
 <td align="right">0.5048543</td>
-<td align="right">1.495234</td>
+<td align="right">1.490273</td>
 <td align="right">122</td>
 <td align="left">CCND1, CDKN1C, MCM6</td>
 </tr>
 <tr class="odd">
 <td align="left">KEGG_PROGESTERONE_MEDIATED_OOCYTE_MATURATION</td>
-<td align="right">0.0001508</td>
-<td align="right">0.0093480</td>
-<td align="right">0.5188481</td>
+<td align="right">0.0003076</td>
+<td align="right">0.0190708</td>
+<td align="right">0.4984931</td>
 <td align="right">0.5345082</td>
-<td align="right">1.556213</td>
+<td align="right">1.547499</td>
 <td align="right">83</td>
 <td align="left">KRAS, CCNB1, PIK3R1</td>
 </tr>
 <tr class="even">
-<td align="left">KEGG_DNA_REPLICATION</td>
-<td align="right">0.0004992</td>
-<td align="right">0.0232110</td>
-<td align="right">0.4772708</td>
-<td align="right">0.6193616</td>
-<td align="right">1.697593</td>
-<td align="right">34</td>
-<td align="left">MCM6, MCM7, MCM2</td>
-</tr>
-<tr class="odd">
-<td align="left">KEGG_CYSTEINE_AND_METHIONINE_METABOLISM</td>
-<td align="right">0.0008106</td>
-<td align="right">0.0282505</td>
-<td align="right">0.4772708</td>
-<td align="right">0.6236481</td>
-<td align="right">1.701374</td>
-<td align="right">32</td>
-<td align="left">CDO1, AMD1, DNMT3B</td>
-</tr>
-<tr class="even">
 <td align="left">KEGG_AXON_GUIDANCE</td>
-<td align="right">0.0009113</td>
-<td align="right">0.0282505</td>
+<td align="right">0.0005450</td>
+<td align="right">0.0205846</td>
 <td align="right">0.4772708</td>
 <td align="right">0.4792875</td>
-<td align="right">1.423080</td>
+<td align="right">1.414896</td>
 <td align="right">128</td>
 <td align="left">ABLIM1, NCK2, ROBO2</td>
 </tr>
 <tr class="odd">
+<td align="left">KEGG_DNA_REPLICATION</td>
+<td align="right">0.0006549</td>
+<td align="right">0.0205846</td>
+<td align="right">0.4772708</td>
+<td align="right">0.6193616</td>
+<td align="right">1.696745</td>
+<td align="right">34</td>
+<td align="left">MCM6, MCM7, MCM2</td>
+</tr>
+<tr class="even">
+<td align="left">KEGG_CYSTEINE_AND_METHIONINE_METABOLISM</td>
+<td align="right">0.0006640</td>
+<td align="right">0.0205846</td>
+<td align="right">0.4772708</td>
+<td align="right">0.6236481</td>
+<td align="right">1.699303</td>
+<td align="right">32</td>
+<td align="left">CDO1, AMD1, DNMT3B</td>
+</tr>
+<tr class="odd">
 <td align="left">KEGG_STEROID_BIOSYNTHESIS</td>
-<td align="right">0.0017764</td>
-<td align="right">0.0472011</td>
+<td align="right">0.0013898</td>
+<td align="right">0.0369295</td>
 <td align="right">0.4550599</td>
 <td align="right">0.6874421</td>
-<td align="right">1.760690</td>
+<td align="right">1.756386</td>
 <td align="right">17</td>
 <td align="left">CYP51A1, MSMO1, SQLE</td>
 </tr>
 <tr class="even">
+<td align="left">KEGG_GAP_JUNCTION</td>
+<td align="right">0.0024604</td>
+<td align="right">0.0572040</td>
+<td align="right">0.4317077</td>
+<td align="right">0.4922953</td>
+<td align="right">1.424039</td>
+<td align="right">82</td>
+<td align="left">TUBB2B, KRAS, PRKCA</td>
+</tr>
+<tr class="odd">
 <td align="left">KEGG_MAPK_SIGNALING_PATHWAY</td>
-<td align="right">0.0033113</td>
-<td align="right">0.0769885</td>
+<td align="right">0.0035333</td>
+<td align="right">0.0698487</td>
 <td align="right">0.4317077</td>
 <td align="right">0.4140507</td>
-<td align="right">1.260156</td>
+<td align="right">1.259208</td>
 <td align="right">259</td>
 <td align="left">MEF2C, JUN, CACNB2</td>
 </tr>
-<tr class="odd">
-<td align="left">KEGG_NON_SMALL_CELL_LUNG_CANCER</td>
-<td align="right">0.0043502</td>
-<td align="right">0.0801064</td>
-<td align="right">0.4070179</td>
-<td align="right">0.5200860</td>
-<td align="right">1.473159</td>
-<td align="right">53</td>
-<td align="left">CCND1, KRAS, PRKCA</td>
-</tr>
 <tr class="even">
-<td align="left">KEGG_TIGHT_JUNCTION</td>
-<td align="right">0.0048707</td>
-<td align="right">0.0801064</td>
-<td align="right">0.4070179</td>
-<td align="right">0.4577930</td>
-<td align="right">1.355234</td>
-<td align="right">119</td>
-<td align="left">YBX3, RRAS2, KRAS</td>
+<td align="left">KEGG_FRUCTOSE_AND_MANNOSE_METABOLISM</td>
+<td align="right">0.0037553</td>
+<td align="right">0.0698487</td>
+<td align="right">0.4317077</td>
+<td align="right">0.5769388</td>
+<td align="right">1.580528</td>
+<td align="right">34</td>
+<td align="left">HK2, PFKFB2, ALDOC</td>
 </tr>
 </tbody>
 </table>
@@ -1794,7 +1794,7 @@ gwas.fgsea %&gt;%
 <table>
 <colgroup>
 <col width="37%"></col>
-<col width="6%"></col>
+<col width="5%"></col>
 <col width="7%"></col>
 <col width="8%"></col>
 <col width="8%"></col>
@@ -1817,110 +1817,110 @@ gwas.fgsea %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">Protein quantitative trait loci (liver)</td>
-<td align="right">0.0e+00</td>
-<td align="right">3.00e-07</td>
-<td align="right">0.7881868</td>
+<td align="right">0e+00</td>
+<td align="right">2.00e-07</td>
+<td align="right">0.8012156</td>
 <td align="right">0.4132858</td>
-<td align="right">1.303807</td>
+<td align="right">1.300420</td>
 <td align="right">1217</td>
 <td align="left">SGK1, KLHL1, INHBB</td>
 </tr>
 <tr class="even">
 <td align="left">Cortical surface area</td>
-<td align="right">0.0e+00</td>
-<td align="right">5.00e-07</td>
-<td align="right">0.7749390</td>
+<td align="right">0e+00</td>
+<td align="right">6.00e-07</td>
+<td align="right">0.7614608</td>
 <td align="right">0.4355612</td>
-<td align="right">1.364632</td>
+<td align="right">1.357530</td>
 <td align="right">699</td>
 <td align="left">MEF2C, SOX11, WWC1</td>
 </tr>
 <tr class="odd">
 <td align="left">Metabolite levels</td>
-<td align="right">0.0e+00</td>
-<td align="right">1.40e-06</td>
-<td align="right">0.7477397</td>
+<td align="right">0e+00</td>
+<td align="right">6.00e-07</td>
+<td align="right">0.7614608</td>
 <td align="right">0.4095140</td>
-<td align="right">1.291638</td>
+<td align="right">1.286680</td>
 <td align="right">1135</td>
 <td align="left">SGK1, ATOH7, C14orf132</td>
 </tr>
 <tr class="even">
 <td align="left">Schizophrenia</td>
-<td align="right">0.0e+00</td>
-<td align="right">2.30e-06</td>
+<td align="right">0e+00</td>
+<td align="right">1.60e-06</td>
 <td align="right">0.7337620</td>
 <td align="right">0.4341164</td>
-<td align="right">1.359278</td>
+<td align="right">1.352154</td>
 <td align="right">677</td>
 <td align="left">MEF2C, TMTC1, LIMA1</td>
 </tr>
 <tr class="odd">
 <td align="left">Highest math class taken (MTAG)</td>
-<td align="right">1.0e-07</td>
-<td align="right">7.10e-06</td>
+<td align="right">1e-07</td>
+<td align="right">5.10e-06</td>
 <td align="right">0.7049757</td>
 <td align="right">0.4244059</td>
-<td align="right">1.330448</td>
+<td align="right">1.323875</td>
 <td align="right">738</td>
 <td align="left">MEF2C, SALL3, INHBB</td>
 </tr>
 <tr class="even">
 <td align="left">Educational attainment (MTAG)</td>
-<td align="right">4.0e-07</td>
-<td align="right">1.90e-05</td>
-<td align="right">0.6749629</td>
+<td align="right">2e-07</td>
+<td align="right">1.15e-05</td>
+<td align="right">0.6901325</td>
 <td align="right">0.4094558</td>
-<td align="right">1.287538</td>
+<td align="right">1.282481</td>
 <td align="right">900</td>
 <td align="left">MEF2C, OSBPL3, SLC17A1</td>
 </tr>
 <tr class="odd">
-<td align="left">Systolic blood pressure</td>
-<td align="right">5.0e-07</td>
-<td align="right">2.17e-05</td>
-<td align="right">0.6594444</td>
-<td align="right">0.3962629</td>
-<td align="right">1.249818</td>
-<td align="right">1168</td>
-<td align="left">PFKFB2, LIMA1, AHRR</td>
-</tr>
-<tr class="even">
 <td align="left">PR interval</td>
-<td align="right">6.0e-07</td>
-<td align="right">2.17e-05</td>
-<td align="right">0.6594444</td>
+<td align="right">3e-07</td>
+<td align="right">1.29e-05</td>
+<td align="right">0.6749629</td>
 <td align="right">0.5005374</td>
-<td align="right">1.518900</td>
+<td align="right">1.512782</td>
 <td align="right">220</td>
 <td align="left">BCL6, SYNE3, EPAS1</td>
 </tr>
+<tr class="even">
+<td align="left">Cortical thickness</td>
+<td align="right">5e-07</td>
+<td align="right">2.04e-05</td>
+<td align="right">0.6594444</td>
+<td align="right">0.4313908</td>
+<td align="right">1.336360</td>
+<td align="right">519</td>
+<td align="left">MEF2C, SOX11, ECE1</td>
+</tr>
 <tr class="odd">
 <td align="left">Educational attainment (years of education)</td>
-<td align="right">1.4e-06</td>
-<td align="right">4.76e-05</td>
-<td align="right">0.6435518</td>
+<td align="right">8e-07</td>
+<td align="right">2.66e-05</td>
+<td align="right">0.6594444</td>
 <td align="right">0.4040904</td>
-<td align="right">1.272050</td>
+<td align="right">1.267215</td>
 <td align="right">968</td>
 <td align="left">MEF2C, SLC17A1, KCNJ3</td>
 </tr>
 <tr class="even">
-<td align="left">Self-reported math ability (MTAG)</td>
-<td align="right">1.6e-06</td>
-<td align="right">5.08e-05</td>
+<td align="left">Systolic blood pressure</td>
+<td align="right">1e-06</td>
+<td align="right">3.01e-05</td>
 <td align="right">0.6435518</td>
-<td align="right">0.4309756</td>
-<td align="right">1.338703</td>
-<td align="right">518</td>
-<td align="left">MEF2C, INHBB, GALNT13</td>
+<td align="right">0.3962629</td>
+<td align="right">1.245893</td>
+<td align="right">1168</td>
+<td align="left">PFKFB2, LIMA1, AHRR</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<div id="deliverable" class="section level1">
-<h1>Deliverable</h1>
+<div id="deliverables" class="section level1">
+<h1>Deliverables</h1>
 <div id="deliverable-1-1pt" class="section level2">
 <h2>Deliverable #1 (1pt)</h2>
 <p>Run the discrete version of gene set analysis for the genes significantly associated with the interaction effect in <a href="https://github.com/STAT540-UBC/seminar-05/blob/e042df71546221beb96ae44dbf252568c7797a93/sm5_differential_expression_analysis.Rmd#L706"><code>seminar-05</code></a>. Show your results as top KEGG pathways and GWAS disease/traits.</p>
