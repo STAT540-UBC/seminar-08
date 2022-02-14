@@ -1,13 +1,11 @@
-STAT 540 - Seminar 7: Gene Set Enrichment Analysis
-==================================================
+# STAT 540 - Seminar 7: Gene Set Enrichment Analysis
 
-Learning Objectives
--------------------
+## Learning Objectives
 
 1.  Testing the over-representation of gene sets for your list of top
     significant genes
 
-2.  Score-based Gene Set Enrichment Analysis based on your list of
+2.  rank-based Gene Set Enrichment Analysis based on your list of
     gene-level scores
 
 Outline:
@@ -20,15 +18,13 @@ Outline:
     insignificant](#part-1-gene-set-analysis-testing-over-representation)
 
 -   [Part 2: When we want to use gene-level scores to rank the
-    importance](#part-2-score-based-gene-set-enrichment-analysis)
+    importance](#part-2-rank-based-gene-set-enrichment-analysis)
 
 -   [Deliverables](#deliverables)
 
-Recap Differential Expression Analysis
-======================================
+# Recap Differential Expression Analysis
 
-Run Differential Expression Gene analysis
------------------------------------------
+## Run Differential Expression Gene analysis
 
 Let’s use the same data used in
 [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm5_differential_expression_analysis.md).
@@ -54,8 +50,7 @@ As a result, we have:
     ## 5: 1.415802e-13 1.123672e-09   1451635_at
     ## 6: 1.857330e-13 1.123672e-09 1422929_s_at
 
-We want to convert the probe names to gene symbols/ENSEMBL IDs (and human orthologs, too)
------------------------------------------------------------------------------------------
+## We want to convert the probe names to gene symbols/ENSEMBL IDs (and human orthologs, too)
 
 Sometimes, the authors forget to attach feature annotation information;
 then, you must manually map these to gene symbols or ENSEMBL IDs
@@ -220,8 +215,7 @@ Match the probe names with the mouse and human gene symbols
 
 -   Why do the same Affymetrix probe correspond to multiple human genes?
 
-How/where to obtain biologically meaningful gene sets
-=====================================================
+# How/where to obtain biologically meaningful gene sets
 
 Here, we will use the MSigDB database and GWAS catalogue, but there are
 many ways you can obtain gene sets. Traditionally, Gene Ontology (GO)
@@ -232,8 +226,7 @@ catalogue, GO terms have hierarchical relationships (or directed acyclic
 graph) with one another, which we would need to consider in calibrating
 the null distribution.
 
-Molecular Signature Database
-----------------------------
+## Molecular Signature Database
 
 [MSigDB](http://www.gsea-msigdb.org/gsea/msigdb/) provides a
 comprehensive list of gene sets and pathways manually curated by experts
@@ -269,7 +262,8 @@ There are many species:
 </tr>
 <tr class="even">
 <td style="text-align: left;">Bos taurus</td>
-<td style="text-align: left;">bovine, cattle, cow, dairy cow, domestic cattle, domestic cow</td>
+<td style="text-align: left;">bovine, cattle, cow, dairy cow, domestic
+cattle, domestic cow</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Caenorhabditis elegans</td>
@@ -281,7 +275,8 @@ There are many species:
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Danio rerio</td>
-<td style="text-align: left;">leopard danio, zebra danio, zebra fish, zebrafish</td>
+<td style="text-align: left;">leopard danio, zebra danio, zebra fish,
+zebrafish</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Drosophila melanogaster</td>
@@ -297,7 +292,8 @@ There are many species:
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Gallus gallus</td>
-<td style="text-align: left;">bantam, chicken, chickens, Gallus domesticus</td>
+<td style="text-align: left;">bantam, chicken, chickens, Gallus
+domesticus</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Homo sapiens</td>
@@ -305,7 +301,8 @@ There are many species:
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Macaca mulatta</td>
-<td style="text-align: left;">rhesus macaque, rhesus macaques, Rhesus monkey, rhesus monkeys</td>
+<td style="text-align: left;">rhesus macaque, rhesus macaques, Rhesus
+monkey, rhesus monkeys</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Monodelphis domestica</td>
@@ -317,7 +314,8 @@ There are many species:
 </tr>
 <tr class="even">
 <td style="text-align: left;">Ornithorhynchus anatinus</td>
-<td style="text-align: left;">duck-billed platypus, duckbill platypus, platypus</td>
+<td style="text-align: left;">duck-billed platypus, duckbill platypus,
+platypus</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Pan troglodytes</td>
@@ -329,7 +327,8 @@ There are many species:
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Saccharomyces cerevisiae</td>
-<td style="text-align: left;">baker’s yeast, brewer’s yeast, S. cerevisiae</td>
+<td style="text-align: left;">baker’s yeast, brewer’s yeast, S.
+cerevisiae</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Schizosaccharomyces pombe 972h-</td>
@@ -341,7 +340,8 @@ There are many species:
 </tr>
 <tr class="even">
 <td style="text-align: left;">Xenopus tropicalis</td>
-<td style="text-align: left;">tropical clawed frog, western clawed frog</td>
+<td style="text-align: left;">tropical clawed frog, western clawed
+frog</td>
 </tr>
 </tbody>
 </table>
@@ -483,8 +483,7 @@ We will focus on the KEGG pathways named by human gene symbols:
                                       category = "C2",
                                       subcategory = "CP:KEGG")
 
-GWAS catalog
-------------
+## GWAS catalog
 
 We can download public data mapping SNPs (genes) to diseases/phenotypes
 from [the NHGRI-EBI GWAS Catalog](https://www.ebi.ac.uk/gwas/). The GWAS
@@ -598,8 +597,7 @@ disease-related disorders:
 
 -   *Note*: `PVALUE_MLOG`: -log10(p-value).
 
-Part 1 Gene set analysis testing over-representation
-====================================================
+# Part 1 Gene set analysis testing over-representation
 
 ### Hypergeometric test assumes a theoretical null distribution
 
@@ -709,6 +707,14 @@ In `R`’s `phyper`, it’s as simple as:
                                     cutoff=1e-2)
 
 <table>
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 5%" />
+<col style="width: 4%" />
+<col style="width: 7%" />
+<col style="width: 5%" />
+<col style="width: 14%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">gs_name</th>
@@ -729,7 +735,8 @@ In `R`’s `phyper`, it’s as simple as:
 <td style="text-align: right;">0.0000000</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">KEGG_PROGESTERONE_MEDIATED_OOCYTE_MATURATION</td>
+<td
+style="text-align: left;">KEGG_PROGESTERONE_MEDIATED_OOCYTE_MATURATION</td>
 <td style="text-align: right;">83</td>
 <td style="text-align: right;">29</td>
 <td style="text-align: right;">4384</td>
@@ -761,7 +768,8 @@ In `R`’s `phyper`, it’s as simple as:
 <td style="text-align: right;">0.0000560</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">KEGG_CYSTEINE_AND_METHIONINE_METABOLISM</td>
+<td
+style="text-align: left;">KEGG_CYSTEINE_AND_METHIONINE_METABOLISM</td>
 <td style="text-align: right;">32</td>
 <td style="text-align: right;">13</td>
 <td style="text-align: right;">4435</td>
@@ -1054,7 +1062,7 @@ study. The following is an excerpt from the `goseq` vignette:
 > length, given by the PWF. As you may have noticed when running
 > supportedGenomes or supportedGeneIDs, length data is available in the
 > local database for our gene ID, “ensGene” and our genome, “hg19”. We
-> will let goseq automatically fetch this data from its databases."
+> will let goseq automatically fetch this data from its databases.”
 
     pwf <- goseq::nullp(deg.vec,"hg19","ensGene")
 
@@ -1103,17 +1111,20 @@ What do you think?
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">3318</td>
-<td style="text-align: left;"><a href="GO:0006614" class="uri">GO:0006614</a></td>
+<td style="text-align: left;"><a href="GO:0006614"
+class="uri">GO:0006614</a></td>
 <td style="text-align: left;">6.2e-17</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">40</td>
 <td style="text-align: right;">76</td>
-<td style="text-align: left;">SRP-dependent cotranslational protein targeting to membrane</td>
+<td style="text-align: left;">SRP-dependent cotranslational protein
+targeting to membrane</td>
 <td style="text-align: left;">BP</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">7125</td>
-<td style="text-align: left;"><a href="GO:0022626" class="uri">GO:0022626</a></td>
+<td style="text-align: left;"><a href="GO:0022626"
+class="uri">GO:0022626</a></td>
 <td style="text-align: left;">6.6e-17</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">43</td>
@@ -1123,17 +1134,20 @@ What do you think?
 </tr>
 <tr class="odd">
 <td style="text-align: left;">3317</td>
-<td style="text-align: left;"><a href="GO:0006613" class="uri">GO:0006613</a></td>
+<td style="text-align: left;"><a href="GO:0006613"
+class="uri">GO:0006613</a></td>
 <td style="text-align: left;">1.4e-16</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">41</td>
 <td style="text-align: right;">80</td>
-<td style="text-align: left;">cotranslational protein targeting to membrane</td>
+<td style="text-align: left;">cotranslational protein targeting to
+membrane</td>
 <td style="text-align: left;">BP</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">3769</td>
-<td style="text-align: left;"><a href="GO:0007399" class="uri">GO:0007399</a></td>
+<td style="text-align: left;"><a href="GO:0007399"
+class="uri">GO:0007399</a></td>
 <td style="text-align: left;">3.5e-16</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">478</td>
@@ -1143,7 +1157,8 @@ What do you think?
 </tr>
 <tr class="odd">
 <td style="text-align: left;">7283</td>
-<td style="text-align: left;"><a href="GO:0030182" class="uri">GO:0030182</a></td>
+<td style="text-align: left;"><a href="GO:0030182"
+class="uri">GO:0030182</a></td>
 <td style="text-align: left;">6.4e-16</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">308</td>
@@ -1153,7 +1168,8 @@ What do you think?
 </tr>
 <tr class="even">
 <td style="text-align: left;">13327</td>
-<td style="text-align: left;"><a href="GO:0048666" class="uri">GO:0048666</a></td>
+<td style="text-align: left;"><a href="GO:0048666"
+class="uri">GO:0048666</a></td>
 <td style="text-align: left;">2.2e-15</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">261</td>
@@ -1163,7 +1179,8 @@ What do you think?
 </tr>
 <tr class="odd">
 <td style="text-align: left;">13356</td>
-<td style="text-align: left;"><a href="GO:0048699" class="uri">GO:0048699</a></td>
+<td style="text-align: left;"><a href="GO:0048699"
+class="uri">GO:0048699</a></td>
 <td style="text-align: left;">6.3e-15</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">331</td>
@@ -1173,7 +1190,8 @@ What do you think?
 </tr>
 <tr class="even">
 <td style="text-align: left;">11947</td>
-<td style="text-align: left;"><a href="GO:0045047" class="uri">GO:0045047</a></td>
+<td style="text-align: left;"><a href="GO:0045047"
+class="uri">GO:0045047</a></td>
 <td style="text-align: left;">1.3e-14</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">41</td>
@@ -1183,7 +1201,8 @@ What do you think?
 </tr>
 <tr class="odd">
 <td style="text-align: left;">7081</td>
-<td style="text-align: left;"><a href="GO:0022008" class="uri">GO:0022008</a></td>
+<td style="text-align: left;"><a href="GO:0022008"
+class="uri">GO:0022008</a></td>
 <td style="text-align: left;">3.8e-14</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">344</td>
@@ -1193,7 +1212,8 @@ What do you think?
 </tr>
 <tr class="even">
 <td style="text-align: left;">137</td>
-<td style="text-align: left;"><a href="GO:0000278" class="uri">GO:0000278</a></td>
+<td style="text-align: left;"><a href="GO:0000278"
+class="uri">GO:0000278</a></td>
 <td style="text-align: left;">9.5e-14</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">221</td>
@@ -1268,7 +1288,8 @@ We can build a custom `gene2cat` `data.frame`.
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">1255</td>
-<td style="text-align: left;">GOBERT_OLIGODENDROCYTE_DIFFERENTIATION_UP</td>
+<td
+style="text-align: left;">GOBERT_OLIGODENDROCYTE_DIFFERENTIATION_UP</td>
 <td style="text-align: left;">7.1e-29</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">184</td>
@@ -1276,7 +1297,8 @@ We can build a custom `gene2cat` `data.frame`.
 </tr>
 <tr class="even">
 <td style="text-align: left;">1254</td>
-<td style="text-align: left;">GOBERT_OLIGODENDROCYTE_DIFFERENTIATION_DN</td>
+<td
+style="text-align: left;">GOBERT_OLIGODENDROCYTE_DIFFERENTIATION_DN</td>
 <td style="text-align: left;">9.6e-24</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">283</td>
@@ -1300,7 +1322,8 @@ We can build a custom `gene2cat` `data.frame`.
 </tr>
 <tr class="odd">
 <td style="text-align: left;">3507</td>
-<td style="text-align: left;">REACTOME_EUKARYOTIC_TRANSLATION_ELONGATION</td>
+<td
+style="text-align: left;">REACTOME_EUKARYOTIC_TRANSLATION_ELONGATION</td>
 <td style="text-align: left;">9.6e-22</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">43</td>
@@ -1308,7 +1331,8 @@ We can build a custom `gene2cat` `data.frame`.
 </tr>
 <tr class="even">
 <td style="text-align: left;">771</td>
-<td style="text-align: left;">CHIANG_LIVER_CANCER_SUBCLASS_PROLIFERATION_UP</td>
+<td
+style="text-align: left;">CHIANG_LIVER_CANCER_SUBCLASS_PROLIFERATION_UP</td>
 <td style="text-align: left;">2.0e-21</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">76</td>
@@ -1349,8 +1373,7 @@ We can build a custom `gene2cat` `data.frame`.
 </tbody>
 </table>
 
-Part 2 Score-based Gene Set Enrichment Analysis
-===============================================
+# Part 2 Rank-based Gene Set Enrichment Analysis
 
 Let’s take back. What is the premise of (discrete) gene set analysis? In
 our DEG analysis, we discovered 3578 probes/genes (of a total of 45101
@@ -1370,8 +1393,7 @@ significant and the insignificant genes.
 
 <img src="sm7_gsa_network_files/figure-markdown_strict/fig_fdr_line-1.png" style="display: block; margin: auto;" />
 
-Step 0. Install “fast” Gene Set Enrichment Analysis
----------------------------------------------------
+## Step 0. Install “fast” Gene Set Enrichment Analysis
 
 The original Gene Set Enrichment Analysis method is not so scalable and
 gunky in permutation steps. To calibrate low P-values, e.g., 1e-6, you
@@ -1397,8 +1419,7 @@ You can check out this preprint:
 *Remark on a technical issue*: You need `C++` compiler installed in your
 machine if you want to use this package with best performance.
 
-Step 1. Prepare your gene sets to feed them in to `fgsea` arguments
--------------------------------------------------------------------
+## Step 1. Prepare your gene sets to feed them in to `fgsea` arguments
 
 `fgsea` takes a list of lists of genes. We can construct them by looping
 through gene sets, i.e., `for`, but that’s not `R`’s way and would be
@@ -1455,8 +1476,7 @@ We will also need a named vector of gene-level scores. Here, we use
         mutate(v = -log10(adj.P.Val)) %>% 
         (function(.dt) { v <- .dt$v; names(v) <- .dt$gene_symbol; v })
 
-Step 2. Run `fgsea` and interpreter the results
------------------------------------------------
+## Step 2. Run `fgsea` and interpreter the results
 
 Now we have all the ingredients.
 
@@ -1476,7 +1496,7 @@ Do we see the same results?
         select(-leadingEdge) %>% 
         knitr::kable()
 
-<table>
+<table style="width:100%;">
 <colgroup>
 <col style="width: 37%" />
 <col style="width: 8%" />
@@ -1485,7 +1505,7 @@ Do we see the same results?
 <col style="width: 8%" />
 <col style="width: 7%" />
 <col style="width: 4%" />
-<col style="width: 17%" />
+<col style="width: 18%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -1503,102 +1523,104 @@ Do we see the same results?
 <tr class="odd">
 <td style="text-align: left;">KEGG_RIBOSOME</td>
 <td style="text-align: right;">0.0000000</td>
-<td style="text-align: right;">0.0000001</td>
-<td style="text-align: right;">0.8140358</td>
+<td style="text-align: right;">0.0000000</td>
+<td style="text-align: right;">0.8266573</td>
 <td style="text-align: right;">0.6856763</td>
-<td style="text-align: right;">1.968210</td>
+<td style="text-align: right;">1.976632</td>
 <td style="text-align: right;">66</td>
 <td style="text-align: left;">RPL31, RPL23A, RPL15</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">KEGG_CELL_CYCLE</td>
-<td style="text-align: right;">0.0001111</td>
-<td style="text-align: right;">0.0103336</td>
-<td style="text-align: right;">0.5384341</td>
+<td style="text-align: right;">0.0001304</td>
+<td style="text-align: right;">0.0121243</td>
+<td style="text-align: right;">0.5188481</td>
 <td style="text-align: right;">0.5048543</td>
-<td style="text-align: right;">1.494346</td>
+<td style="text-align: right;">1.489275</td>
 <td style="text-align: right;">122</td>
 <td style="text-align: left;">CCND1, CDKN1C, MCM6</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">KEGG_PROGESTERONE_MEDIATED_OOCYTE_MATURATION</td>
-<td style="text-align: right;">0.0001961</td>
-<td style="text-align: right;">0.0121594</td>
-<td style="text-align: right;">0.5188481</td>
+<td
+style="text-align: left;">KEGG_PROGESTERONE_MEDIATED_OOCYTE_MATURATION</td>
+<td style="text-align: right;">0.0002848</td>
+<td style="text-align: right;">0.0176582</td>
+<td style="text-align: right;">0.4984931</td>
 <td style="text-align: right;">0.5345082</td>
-<td style="text-align: right;">1.552375</td>
+<td style="text-align: right;">1.557911</td>
 <td style="text-align: right;">83</td>
 <td style="text-align: left;">KRAS, CCNB1, PIK3R1</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">KEGG_AXON_GUIDANCE</td>
-<td style="text-align: right;">0.0003486</td>
-<td style="text-align: right;">0.0162102</td>
-<td style="text-align: right;">0.4984931</td>
-<td style="text-align: right;">0.4792875</td>
-<td style="text-align: right;">1.423820</td>
-<td style="text-align: right;">128</td>
-<td style="text-align: left;">ABLIM1, NCK2, ROBO2</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">KEGG_DNA_REPLICATION</td>
-<td style="text-align: right;">0.0005266</td>
-<td style="text-align: right;">0.0195909</td>
-<td style="text-align: right;">0.4772708</td>
+<td style="text-align: right;">0.0004489</td>
+<td style="text-align: right;">0.0208718</td>
+<td style="text-align: right;">0.4984931</td>
 <td style="text-align: right;">0.6193616</td>
-<td style="text-align: right;">1.687541</td>
+<td style="text-align: right;">1.680865</td>
 <td style="text-align: right;">34</td>
 <td style="text-align: left;">MCM6, MCM7, MCM2</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">KEGG_CYSTEINE_AND_METHIONINE_METABOLISM</td>
-<td style="text-align: right;">0.0008655</td>
-<td style="text-align: right;">0.0268309</td>
+<tr class="odd">
+<td style="text-align: left;">KEGG_AXON_GUIDANCE</td>
+<td style="text-align: right;">0.0007464</td>
+<td style="text-align: right;">0.0277678</td>
 <td style="text-align: right;">0.4772708</td>
+<td style="text-align: right;">0.4792875</td>
+<td style="text-align: right;">1.414182</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: left;">ABLIM1, NCK2, ROBO2</td>
+</tr>
+<tr class="even">
+<td
+style="text-align: left;">KEGG_CYSTEINE_AND_METHIONINE_METABOLISM</td>
+<td style="text-align: right;">0.0010585</td>
+<td style="text-align: right;">0.0328128</td>
+<td style="text-align: right;">0.4550599</td>
 <td style="text-align: right;">0.6236481</td>
-<td style="text-align: right;">1.688486</td>
+<td style="text-align: right;">1.687051</td>
 <td style="text-align: right;">32</td>
 <td style="text-align: left;">CDO1, AMD1, DNMT3B</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">KEGG_STEROID_BIOSYNTHESIS</td>
-<td style="text-align: right;">0.0014819</td>
-<td style="text-align: right;">0.0393751</td>
-<td style="text-align: right;">0.4550599</td>
+<td style="text-align: right;">0.0030154</td>
+<td style="text-align: right;">0.0744079</td>
+<td style="text-align: right;">0.4317077</td>
 <td style="text-align: right;">0.6874421</td>
-<td style="text-align: right;">1.737862</td>
+<td style="text-align: right;">1.744469</td>
 <td style="text-align: right;">17</td>
 <td style="text-align: left;">CYP51A1, MSMO1, SQLE</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">KEGG_MAPK_SIGNALING_PATHWAY</td>
-<td style="text-align: right;">0.0036443</td>
-<td style="text-align: right;">0.0766486</td>
+<td style="text-align: left;">KEGG_GAP_JUNCTION</td>
+<td style="text-align: right;">0.0032003</td>
+<td style="text-align: right;">0.0744079</td>
 <td style="text-align: right;">0.4317077</td>
-<td style="text-align: right;">0.4140507</td>
-<td style="text-align: right;">1.260525</td>
-<td style="text-align: right;">259</td>
-<td style="text-align: left;">MEF2C, JUN, CACNB2</td>
+<td style="text-align: right;">0.4922953</td>
+<td style="text-align: right;">1.433428</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: left;">TUBB2B, KRAS, PRKCA</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">KEGG_FRUCTOSE_AND_MANNOSE_METABOLISM</td>
 <td style="text-align: right;">0.0042015</td>
-<td style="text-align: right;">0.0766486</td>
+<td style="text-align: right;">0.0861314</td>
 <td style="text-align: right;">0.4070179</td>
 <td style="text-align: right;">0.5769388</td>
-<td style="text-align: right;">1.571954</td>
+<td style="text-align: right;">1.565735</td>
 <td style="text-align: right;">34</td>
 <td style="text-align: left;">HK2, PFKFB2, ALDOC</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">KEGG_GAP_JUNCTION</td>
-<td style="text-align: right;">0.0044245</td>
-<td style="text-align: right;">0.0766486</td>
+<td style="text-align: left;">KEGG_GALACTOSE_METABOLISM</td>
+<td style="text-align: right;">0.0047220</td>
+<td style="text-align: right;">0.0861314</td>
 <td style="text-align: right;">0.4070179</td>
-<td style="text-align: right;">0.4922953</td>
-<td style="text-align: right;">1.430195</td>
-<td style="text-align: right;">82</td>
-<td style="text-align: left;">TUBB2B, KRAS, PRKCA</td>
+<td style="text-align: right;">0.6098009</td>
+<td style="text-align: right;">1.615266</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: left;">HK2, B4GALT2, B4GALT1</td>
 </tr>
 </tbody>
 </table>
@@ -1643,113 +1665,113 @@ We can do the same thing for the GWAS catalogue.
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Protein quantitative trait loci (liver)</td>
+<td style="text-align: left;">Protein quantitative trait loci
+(liver)</td>
 <td style="text-align: right;">0.0e+00</td>
-<td style="text-align: right;">1.00e-07</td>
-<td style="text-align: right;">0.8140358</td>
+<td style="text-align: right;">4.00e-07</td>
+<td style="text-align: right;">0.7881868</td>
 <td style="text-align: right;">0.4132858</td>
-<td style="text-align: right;">1.304428</td>
+<td style="text-align: right;">1.303750</td>
 <td style="text-align: right;">1217</td>
 <td style="text-align: left;">SGK1, KLHL1, INHBB</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Cortical surface area</td>
 <td style="text-align: right;">0.0e+00</td>
-<td style="text-align: right;">1.20e-06</td>
-<td style="text-align: right;">0.7477397</td>
+<td style="text-align: right;">7.00e-07</td>
+<td style="text-align: right;">0.7614608</td>
 <td style="text-align: right;">0.4355612</td>
-<td style="text-align: right;">1.363636</td>
+<td style="text-align: right;">1.362336</td>
 <td style="text-align: right;">699</td>
 <td style="text-align: left;">MEF2C, SOX11, WWC1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Metabolite levels</td>
 <td style="text-align: right;">0.0e+00</td>
-<td style="text-align: right;">1.20e-06</td>
-<td style="text-align: right;">0.7477397</td>
+<td style="text-align: right;">7.00e-07</td>
+<td style="text-align: right;">0.7614608</td>
 <td style="text-align: right;">0.4095140</td>
-<td style="text-align: right;">1.291681</td>
+<td style="text-align: right;">1.289838</td>
 <td style="text-align: right;">1135</td>
 <td style="text-align: left;">SGK1, ATOH7, C14orf132</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Schizophrenia</td>
 <td style="text-align: right;">0.0e+00</td>
-<td style="text-align: right;">2.70e-06</td>
-<td style="text-align: right;">0.7195128</td>
+<td style="text-align: right;">1.90e-06</td>
+<td style="text-align: right;">0.7337620</td>
 <td style="text-align: right;">0.4341164</td>
-<td style="text-align: right;">1.358416</td>
+<td style="text-align: right;">1.357570</td>
 <td style="text-align: right;">677</td>
 <td style="text-align: left;">MEF2C, TMTC1, LIMA1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Highest math class taken (MTAG)</td>
 <td style="text-align: right;">1.0e-07</td>
-<td style="text-align: right;">5.40e-06</td>
+<td style="text-align: right;">5.60e-06</td>
 <td style="text-align: right;">0.7049757</td>
 <td style="text-align: right;">0.4244059</td>
-<td style="text-align: right;">1.330507</td>
+<td style="text-align: right;">1.329005</td>
 <td style="text-align: right;">738</td>
 <td style="text-align: left;">MEF2C, SALL3, INHBB</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Educational attainment (MTAG)</td>
-<td style="text-align: right;">2.0e-07</td>
-<td style="text-align: right;">9.10e-06</td>
-<td style="text-align: right;">0.6901325</td>
+<td style="text-align: right;">3.0e-07</td>
+<td style="text-align: right;">1.31e-05</td>
+<td style="text-align: right;">0.6749629</td>
 <td style="text-align: right;">0.4094558</td>
-<td style="text-align: right;">1.287397</td>
+<td style="text-align: right;">1.286893</td>
 <td style="text-align: right;">900</td>
 <td style="text-align: left;">MEF2C, OSBPL3, SLC17A1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">PR interval</td>
 <td style="text-align: right;">3.0e-07</td>
-<td style="text-align: right;">1.50e-05</td>
+<td style="text-align: right;">1.31e-05</td>
 <td style="text-align: right;">0.6749629</td>
 <td style="text-align: right;">0.5005374</td>
-<td style="text-align: right;">1.522345</td>
+<td style="text-align: right;">1.520534</td>
 <td style="text-align: right;">220</td>
 <td style="text-align: left;">BCL6, SYNE3, EPAS1</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Educational attainment (years of education)</td>
-<td style="text-align: right;">8.0e-07</td>
-<td style="text-align: right;">3.00e-05</td>
-<td style="text-align: right;">0.6594444</td>
-<td style="text-align: right;">0.4040904</td>
-<td style="text-align: right;">1.272048</td>
-<td style="text-align: right;">968</td>
-<td style="text-align: left;">MEF2C, SLC17A1, KCNJ3</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">Systolic blood pressure</td>
-<td style="text-align: right;">9.0e-07</td>
-<td style="text-align: right;">3.28e-05</td>
-<td style="text-align: right;">0.6594444</td>
+<td style="text-align: right;">4.0e-07</td>
+<td style="text-align: right;">1.60e-05</td>
+<td style="text-align: right;">0.6749629</td>
 <td style="text-align: right;">0.3962629</td>
-<td style="text-align: right;">1.250532</td>
+<td style="text-align: right;">1.249129</td>
 <td style="text-align: right;">1168</td>
 <td style="text-align: left;">PFKFB2, LIMA1, AHRR</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">Educational attainment (years of
+education)</td>
+<td style="text-align: right;">5.0e-07</td>
+<td style="text-align: right;">1.60e-05</td>
+<td style="text-align: right;">0.6749629</td>
+<td style="text-align: right;">0.4040904</td>
+<td style="text-align: right;">1.271217</td>
+<td style="text-align: right;">968</td>
+<td style="text-align: left;">MEF2C, SLC17A1, KCNJ3</td>
+</tr>
 <tr class="even">
-<td style="text-align: left;">Self-reported math ability (MTAG)</td>
-<td style="text-align: right;">1.3e-06</td>
-<td style="text-align: right;">4.07e-05</td>
-<td style="text-align: right;">0.6435518</td>
-<td style="text-align: right;">0.4309756</td>
-<td style="text-align: right;">1.343208</td>
-<td style="text-align: right;">518</td>
-<td style="text-align: left;">MEF2C, INHBB, GALNT13</td>
+<td style="text-align: left;">Refractive error</td>
+<td style="text-align: right;">2.1e-06</td>
+<td style="text-align: right;">6.37e-05</td>
+<td style="text-align: right;">0.6272567</td>
+<td style="text-align: right;">0.4439863</td>
+<td style="text-align: right;">1.373401</td>
+<td style="text-align: right;">402</td>
+<td style="text-align: left;">GCKR, YBX3, CNGB3</td>
 </tr>
 </tbody>
 </table>
 
-Deliverables
-============
+# Deliverables
 
-Deliverable \#1 (1pt)
----------------------
+## Deliverable \#1 (1pt)
 
 Run the discrete version of gene set analysis for the genes
 significantly associated with the interaction effect in
@@ -1768,8 +1790,7 @@ Show your results as top KEGG pathways and GWAS disease/traits.
 
     ## your code here
 
-Deliverable \#2 (1pt)
----------------------
+## Deliverable \#2 (1pt)
 
 -   Run `fgsea` or
     [`GSEABase`](https://bioconductor.org/packages/release/bioc/html/GSEABase.html)

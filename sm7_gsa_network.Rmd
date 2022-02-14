@@ -15,7 +15,7 @@ knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 
 1. Testing the over-representation of gene sets for your list of top significant genes
 
-2. Score-based Gene Set Enrichment Analysis based on your list of gene-level scores
+2. rank-based Gene Set Enrichment Analysis based on your list of gene-level scores
 
 
 ```{r results='hide', message=FALSE, warning=FALSE, echo=FALSE}
@@ -50,7 +50,7 @@ Outline:
 
 * [Part 1: When we know how to draw lines between the significant and the insignificant](#part-1-gene-set-analysis-testing-over-representation)
 
-* [Part 2: When we want to use gene-level scores to rank the importance](#part-2-score-based-gene-set-enrichment-analysis)
+* [Part 2: When we want to use gene-level scores to rank the importance](#part-2-rank-based-gene-set-enrichment-analysis)
 
 * [Deliverables](#deliverables)
 
@@ -627,7 +627,7 @@ head(canonical.goseq.results, 10) %>%
     knitr::kable()
 ```
 
-# Part 2 Score-based Gene Set Enrichment Analysis
+# Part 2 Rank-based Gene Set Enrichment Analysis
 
 Let's take back. What is the premise of (discrete) gene set analysis? In our DEG analysis, we discovered `r nrow(DEG.stat.dt[adj.P.Val < CUTOFF])` probes/genes (of a total of `r nrow(DEG.stat.dt)` probes) significantly perturbed over the course of developmental process. It can be tricky to determine when to draw the line between the significant and the insignificant genes.
  
