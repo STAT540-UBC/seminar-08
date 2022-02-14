@@ -1,7 +1,8 @@
 ---
-title: ""
-date: "`r format(Sys.time(), '%d %B, %Y')`"
-author: "Yongjin Park"
+title: "STAT 540 - Seminar 7: Gene Set Enrichment Analysis"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y @ %H:%M')`"
+output:
+  github_document
 ---
 
 ```{r include=FALSE}
@@ -9,7 +10,9 @@ knitr::opts_chunk$set(size="scriptsize", fig.align="center")
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ```
 
-# STAT 540 - Seminar 7: Gene Set Enrichment Analysis
+## Attributions
+
+This seminar was developed by Yongjin Park
 
 ## Learning Objectives
 
@@ -33,6 +36,12 @@ require(R.utils)           # need this to handle gzipped data
 #' @param x number
 num.sci <- function(x) {
     format(x, scientific=TRUE, digits = 2)
+}
+
+#' Convert a number into the comma-separated one
+#' @param x number
+num.int <- function(x) {
+    format(x, big.mark = ",")
 }
 
 #' Run code if we don't have a `.file`
@@ -59,7 +68,7 @@ Outline:
 
 ## Run Differential Expression Gene analysis
 
-Let's use the same data used in [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm5_differential_expression_analysis.md). You can repeat the same code of `seminar-05`, but we copied that for completeness (only in `Rmd`).
+Let's use the same data used in [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm5_differential_expression_analysis.md). You can repeat the same code of `seminar-05`, but we copied that for completeness (only in [`Rmd`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd)).
 
 ```{r echo = FALSE, results = "hide"}
 eset.file <- "GSE4051.rds"
@@ -103,13 +112,17 @@ As a result, we have:
 head(DEG.stat.dt)
 ```
 
-## We want to convert the probe names to gene symbols/ENSEMBL IDs (and human orthologs, too)
+## We want to convert the probe names to gene symbols used in gene set databases
 
 Sometimes, the authors forget to attach feature annotation information; then, you must manually map these to gene symbols or ENSEMBL IDs commonly used in pathway annotation databases. We will use `biomaRt` package to construct this map.
 
-
 ```{r}
 probe.info.file <- "mouse_human_map.rds"
+```
+
+Although running `biomaRt` (or a similar kind) is essential in many researches (especially in cross-species analysis), we will not cover the details in this seminar. However, you are welcomed to explore the source code as much as you like [`here`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd). We share `.rds` file for a quick data access.
+
+```{r include=FALSE}
 run.if.needed(probe.info.file, {
 
     ## Will use biomaRt that can access ENSEMBL database
@@ -165,22 +178,47 @@ run.if.needed(probe.info.file, {
     unloadNamespace("AnnotationDbi") # this, too
     saveRDS(.map, probe.info.file)
 })
+```
 
+```{r}
 probe.info.map <-
     readRDS(probe.info.file) %>%          # read RDS
     rename(probe = affy_mouse430_2) %>%   # Change the var. name
     rename(chr = chromosome_name) %>%     # shorten the chr name
     rename(gene_symbol = hgnc_symbol) %>% # Will use human gene symbol
     as.data.table()
+```
 
-## multiple transcripts can exist; let's take the longest one
+It looks like this:
+
+```{r}
+probe.info.map %>%
+    head() %>%
+    knitr::kable()
+```
+
+```{r include = FALSE}
+n0 <- nrow(probe.info.map)
+```
+
+We could have multiple transcripts within a gene, so let's take the longest one:
+
+```{r}
 probe.info.map <-
     probe.info.map[order(probe.info.map$transcript_length, decreasing = TRUE),
                    head(.SD, 1),
                    by = .(probe, gene_symbol, chr)]
 ```
 
-Match the probe names with the mouse and human gene symbols
+The same map, but a shorter list: `r num.int(n0)` $\to$ `r num.int(nrow(probe.info.map))`.
+
+```{r}
+probe.info.map %>%
+    head() %>%
+    knitr::kable()
+```
+
+When we match the probe names with the mouse and human gene symbols, we can directly use this DEG table for downstream enrichment analysis of gene sets annotated by human gene symbols.
 
 ```{r}
 DEG.stat.dt %>%
@@ -233,9 +271,13 @@ KEGG.human.db <- msigdbr::msigdbr(species = "human",
 
 ## GWAS catalog
 
-We can download public data mapping SNPs (genes) to diseases/phenotypes from [the NHGRI-EBI GWAS Catalog](https://www.ebi.ac.uk/gwas/). The GWAS catalogue file is already processed and stored in this repository for your convenience, but you're welcome to try out the code.
+We can download public data mapping SNPs (genes) to diseases/phenotypes from [the NHGRI-EBI GWAS Catalog](https://www.ebi.ac.uk/gwas/). The GWAS catalogue file is already processed and stored in this repository for your convenience, but you're welcome to try out the code [`here`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd). 
 
-```{r download_full_gwas_catalog}
+```{r}
+gwas.tidy.file <- "gwas_catalog_tidy.tsv.gz"
+```
+
+```{r download_full_gwas_catalog, include=FALSE}
 ## It make take some time
 gwas.file <- "gwas_catalog_v1.0-associations_e105_r2022-02-02.tsv.gz"
 
@@ -248,8 +290,6 @@ run.if.needed(gwas.file, {
 })
 
 ## make it tidy by taking only what we need
-gwas.tidy.file <- "gwas_catalog_tidy.tsv.gz"
-
 run.if.needed(gwas.tidy.file, {
 
     .dt <-
@@ -273,9 +313,11 @@ run.if.needed(gwas.tidy.file, {
 
     fwrite(.dt, file=gwas.tidy.file)
 })
+```
 
-gwas.db <- fread(gwas.tidy.file)
-gwas.db[, gs_name := `DISEASE/TRAIT`]
+```{r}
+gwas.db <- fread(gwas.tidy.file)      # fread to read gzipped txt file
+gwas.db[, gs_name := `DISEASE/TRAIT`] # will use gs_name for a gene set name
 ```
 
 * *Note*: `fread`, `strsplit`, and `by=.()` operations are usually much faster than the `tidyverse` counterparts--`read_tsv`, `separate`, and `group_by()`. The GWAS catalogue is pretty big; the number of rows after pruning can increase to  `r format(nrow(gwas.db), big.mark = ",")` gene-level associations.
@@ -326,7 +368,7 @@ ggplot(.dt, aes(g, -log10(adj.P.Val), colour=`gs_name`)) +
 
 * Which one is significant?
 
-#### Remember that we learned in the class about the hypergeometric test!
+#### Remember that we learned about the hypergeometric test in the class!
 
 What are the counts?  Let's match gene counts with the black/white ball analogy used in `R`'s `phyper` manual page.
 
@@ -427,7 +469,7 @@ For the DEGs associated with neurodevelopmental stages, many of them make sense!
 
 #### Why do we need another GSA method? 
 
-Remember the null data generating process of the hypergeometric distribution: a uniform sampling of balls in urns without replacement. Well, the "without replacement" part makes sense because we don't draw a DEG more than once in our analysis. However, the "uniform sampling" part may not hold in practice considering that some balls can be bigger than the other. Those bigger balls can be coloured differently.
+We decided to use a hypergeometric test, we implicitly take the assumption of *a uniform sampling* of balls in urns *without replacement*. Well, the "without replacement" part makes sense because we don't draw a DEG more than once in our analysis. However, the "uniform sampling" part may not hold in practice considering that some balls can be bigger than the other. Those bigger balls can be coloured differently.
 
 In the gene set terminology, we need to ask the following questions:
 
@@ -502,7 +544,7 @@ p1 | p2
 
 Anecdotally, long genes tend to participate in multiple functions as a result of an evolutionary process. They can be more recent, a constituent of multiple gene duplicates relating to the brain or mammalian-specific functions, such as neurons and energy consumption.
 
-[Gene Size Matters: An Analysis of Gene Length in the Human Genome](https://www.frontiersin.org/articles/10.3389/fgene.2021.559998/full)
+You might want to read this paper: [Gene Size Matters: An Analysis of Gene Length in the Human Genome](https://www.frontiersin.org/articles/10.3389/fgene.2021.559998/full)
 
 ### We can handle such a gene-level bias by calibrating a better null model before enrichment analysis
 
@@ -773,7 +815,7 @@ Run the discrete version of gene set analysis for the genes significantly associ
 
 ## Deliverable \#2 (1pt)
 
-* Run `fgsea` or  [`GSEABase`](https://bioconductor.org/packages/release/bioc/html/GSEABase.html) for the same DEGs testing the interaction effect (0.5 pt).
+* Run `fgsea` or  [`GSEABase`](https://bioconductor.org/packages/release/bioc/html/GSEABase.html) for the same DEGs testing the interaction effect (0.5 pt). What will be your choice of gene-level scores? You can also take into account the sign of effect sizes.
 
 ```{r}
 ## your code here

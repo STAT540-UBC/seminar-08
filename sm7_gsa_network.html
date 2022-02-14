@@ -9,10 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Yongjin Park" />
 
 
-<title>sm7_gsa_network.knit</title>
+<title>STAT 540 - Seminar 7: Gene Set Enrichment Analysis</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -358,12 +357,17 @@ pre code {
 
 
 
+<h1 class="title toc-ignore">STAT 540 - Seminar 7: Gene Set Enrichment
+Analysis</h1>
+<h4 class="date">Last update: 14 February, 2022 @ 12:59</h4>
 
 </div>
 
 
-<div id="stat-540---seminar-7-gene-set-enrichment-analysis" class="section level1">
-<h1>STAT 540 - Seminar 7: Gene Set Enrichment Analysis</h1>
+<div id="attributions" class="section level2">
+<h2>Attributions</h2>
+<p>This seminar was developed by Yongjin Park</p>
+</div>
 <div id="learning-objectives" class="section level2">
 <h2>Learning Objectives</h2>
 <ol style="list-style-type: decimal">
@@ -385,14 +389,13 @@ importance</a></p></li>
 <li><p><a href="#deliverables">Deliverables</a></p></li>
 </ul>
 </div>
-</div>
 <div id="recap-differential-expression-analysis" class="section level1">
 <h1>Recap Differential Expression Analysis</h1>
 <div id="run-differential-expression-gene-analysis" class="section level2">
 <h2>Run Differential Expression Gene analysis</h2>
 <p>Let’s use the same data used in <a href="https://github.com/STAT540-UBC/seminar-05/blob/main/sm5_differential_expression_analysis.md"><code>seminar-05</code></a>.
 You can repeat the same code of <code>seminar-05</code>, but we copied
-that for completeness (only in <code>Rmd</code>).</p>
+that for completeness (only in <a href="https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd"><code>Rmd</code></a>).</p>
 <p>As a result, we have:</p>
 <pre class="r"><code>head(DEG.stat.dt)</code></pre>
 <pre><code>##    dev_stageE16 dev_stageP10 dev_stageP2 dev_stageP6  AveExpr        F
@@ -410,83 +413,198 @@ that for completeness (only in <code>Rmd</code>).</p>
 ## 5: 1.415802e-13 1.123672e-09   1451635_at
 ## 6: 1.857330e-13 1.123672e-09 1422929_s_at</code></pre>
 </div>
-<div id="we-want-to-convert-the-probe-names-to-gene-symbolsensembl-ids-and-human-orthologs-too" class="section level2">
-<h2>We want to convert the probe names to gene symbols/ENSEMBL IDs (and
-human orthologs, too)</h2>
+<div id="we-want-to-convert-the-probe-names-to-gene-symbols-used-in-gene-set-databases" class="section level2">
+<h2>We want to convert the probe names to gene symbols used in gene set
+databases</h2>
 <p>Sometimes, the authors forget to attach feature annotation
 information; then, you must manually map these to gene symbols or
 ENSEMBL IDs commonly used in pathway annotation databases. We will use
 <code>biomaRt</code> package to construct this map.</p>
-<pre class="r"><code>probe.info.file &lt;- &quot;mouse_human_map.rds&quot;
-run.if.needed(probe.info.file, {
-
-    ## Will use biomaRt that can access ENSEMBL database
-    ## and make query to retrive what you need
-    if (!require(&quot;BiocManager&quot;, quietly = TRUE)){
-        install.packages(&quot;BiocManager&quot;)
-    }
-    if(!require(biomaRt)) BiocManager::install(&quot;biomaRt&quot;)
-
-    ## Loading biomaRt library can mess up dplyr namespace
-    ## not sure about the current version of R and the package
-    ## 0. Make an access point to mouse and human databases
-    mouse.db &lt;- biomaRt::useMart(&quot;ensembl&quot;, dataset = &quot;mmusculus_gene_ensembl&quot;)
-    human.db &lt;- biomaRt::useMart(&quot;ensembl&quot;, dataset = &quot;hsapiens_gene_ensembl&quot;)
-
-    ## 1. Link mouse and human databases
-    ## This may take sometime depending on your internet speed
-    mouse.human.map &lt;-
-        biomaRt::getLDS(
-                     attributes = c(&quot;affy_mouse430_2&quot;,&quot;mgi_symbol&quot;),
-                     filters = &quot;affy_mouse430_2&quot;,
-                     values = unique(DEG.stat.dt$`probe`),
-                     mart = mouse.db,
-                     attributesL = c(&quot;hgnc_symbol&quot;,&quot;ensembl_gene_id&quot;),
-                     martL = human.db,
-                     uniqueRows = TRUE,
-                     bmHeader=FALSE) %&gt;%
-        as.data.table() %&gt;%
-        unique()
-
-    ## 2. Take some attributes for human genes
-    ## Read some human gene-specific information
-    ## This will also take a while...
-    human.prop &lt;- biomaRt::getBM(attributes = c(&quot;ensembl_gene_id&quot;,
-                                                &quot;chromosome_name&quot;,
-                                                &quot;transcription_start_site&quot;,
-                                                &quot;transcript_length&quot;),
-                                 filters = &quot;ensembl_gene_id&quot;,
-                                 values = unique(mouse.human.map$`ensembl_gene_id`),
-                                 mart = human.db,
-                                 bmHeader=FALSE,
-                                 useCache=FALSE) %&gt;%
-        as.data.table() %&gt;%
-        unique()
-
-    ## 3. Match them up
-    .map &lt;- mouse.human.map %&gt;%
-        left_join(human.prop) %&gt;%
-        as.data.table() %&gt;%
-        unique()
-
-    unloadNamespace(&quot;biomaRt&quot;)       # messy namespace
-    unloadNamespace(&quot;AnnotationDbi&quot;) # this, too
-    saveRDS(.map, probe.info.file)
-})
-
-probe.info.map &lt;-
+<pre class="r"><code>probe.info.file &lt;- &quot;mouse_human_map.rds&quot;</code></pre>
+<p>Although running <code>biomaRt</code> (or a similar kind) is
+essential in many researches (especially in cross-species analysis), we
+will not cover the details in this seminar. However, you are welcomed to
+explore the source code as much as you like <a href="https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd"><code>here</code></a>.
+We share <code>.rds</code> file for a quick data access.</p>
+<pre class="r"><code>probe.info.map &lt;-
     readRDS(probe.info.file) %&gt;%          # read RDS
     rename(probe = affy_mouse430_2) %&gt;%   # Change the var. name
     rename(chr = chromosome_name) %&gt;%     # shorten the chr name
     rename(gene_symbol = hgnc_symbol) %&gt;% # Will use human gene symbol
-    as.data.table()
-
-## multiple transcripts can exist; let&#39;s take the longest one
-probe.info.map &lt;-
+    as.data.table()</code></pre>
+<p>It looks like this:</p>
+<pre class="r"><code>probe.info.map %&gt;%
+    head() %&gt;%
+    knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="10%" />
+<col width="11%" />
+<col width="15%" />
+<col width="10%" />
+<col width="23%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">probe</th>
+<th align="left">mgi_symbol</th>
+<th align="left">gene_symbol</th>
+<th align="left">ensembl_gene_id</th>
+<th align="left">chr</th>
+<th align="right">transcription_start_site</th>
+<th align="right">transcript_length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1426088_at</td>
+<td align="left">mt-Nd5</td>
+<td align="left">MT-ND5</td>
+<td align="left">ENSG00000198786</td>
+<td align="left">MT</td>
+<td align="right">12337</td>
+<td align="right">1812</td>
+</tr>
+<tr class="even">
+<td align="left">1417629_at</td>
+<td align="left">Prodh</td>
+<td align="left"></td>
+<td align="left">ENSG00000277196</td>
+<td align="left">KI270734.1</td>
+<td align="right">161852</td>
+<td align="right">2405</td>
+</tr>
+<tr class="odd">
+<td align="left">1417629_at</td>
+<td align="left">Prodh</td>
+<td align="left"></td>
+<td align="left">ENSG00000277196</td>
+<td align="left">KI270734.1</td>
+<td align="right">161750</td>
+<td align="right">1990</td>
+</tr>
+<tr class="even">
+<td align="left">1452434_s_at</td>
+<td align="left">Dgcr6</td>
+<td align="left"></td>
+<td align="left">ENSG00000278817</td>
+<td align="left">KI270734.1</td>
+<td align="right">131494</td>
+<td align="right">1213</td>
+</tr>
+<tr class="odd">
+<td align="left">1428753_a_at</td>
+<td align="left">Dgcr6</td>
+<td align="left"></td>
+<td align="left">ENSG00000278817</td>
+<td align="left">KI270734.1</td>
+<td align="right">131494</td>
+<td align="right">1213</td>
+</tr>
+<tr class="even">
+<td align="left">1417253_at</td>
+<td align="left">Frg1</td>
+<td align="left"></td>
+<td align="left">ENSG00000273748</td>
+<td align="left">GL000219.1</td>
+<td align="right">83311</td>
+<td align="right">372</td>
+</tr>
+</tbody>
+</table>
+<p>We could have multiple transcripts within a gene, so let’s take the
+longest one:</p>
+<pre class="r"><code>probe.info.map &lt;-
     probe.info.map[order(probe.info.map$transcript_length, decreasing = TRUE),
                    head(.SD, 1),
                    by = .(probe, gene_symbol, chr)]</code></pre>
-<p>Match the probe names with the mouse and human gene symbols</p>
+<p>The same map, but a shorter list: 336,181 <span class="math inline">\(\to\)</span> 33,950.</p>
+<pre class="r"><code>probe.info.map %&gt;%
+    head() %&gt;%
+    knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="13%" />
+<col width="12%" />
+<col width="4%" />
+<col width="11%" />
+<col width="16%" />
+<col width="25%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">probe</th>
+<th align="left">gene_symbol</th>
+<th align="left">chr</th>
+<th align="left">mgi_symbol</th>
+<th align="left">ensembl_gene_id</th>
+<th align="right">transcription_start_site</th>
+<th align="right">transcript_length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1444083_at</td>
+<td align="left">TTN</td>
+<td align="left">2</td>
+<td align="left">Ttn</td>
+<td align="left">ENSG00000155657</td>
+<td align="right">178807423</td>
+<td align="right">109224</td>
+</tr>
+<tr class="even">
+<td align="left">1427446_s_at</td>
+<td align="left">TTN</td>
+<td align="left">2</td>
+<td align="left">Ttn</td>
+<td align="left">ENSG00000155657</td>
+<td align="right">178807423</td>
+<td align="right">109224</td>
+</tr>
+<tr class="odd">
+<td align="left">1444638_at</td>
+<td align="left">TTN</td>
+<td align="left">2</td>
+<td align="left">Ttn</td>
+<td align="left">ENSG00000155657</td>
+<td align="right">178807423</td>
+<td align="right">109224</td>
+</tr>
+<tr class="even">
+<td align="left">1427445_a_at</td>
+<td align="left">TTN</td>
+<td align="left">2</td>
+<td align="left">Ttn</td>
+<td align="left">ENSG00000155657</td>
+<td align="right">178807423</td>
+<td align="right">109224</td>
+</tr>
+<tr class="odd">
+<td align="left">1431928_at</td>
+<td align="left">TTN</td>
+<td align="left">2</td>
+<td align="left">Ttn</td>
+<td align="left">ENSG00000155657</td>
+<td align="right">178807423</td>
+<td align="right">109224</td>
+</tr>
+<tr class="even">
+<td align="left">1443001_at</td>
+<td align="left">TTN</td>
+<td align="left">2</td>
+<td align="left">Ttn</td>
+<td align="left">ENSG00000155657</td>
+<td align="right">178807423</td>
+<td align="right">109224</td>
+</tr>
+</tbody>
+</table>
+<p>When we match the probe names with the mouse and human gene symbols,
+we can directly use this DEG table for downstream enrichment analysis of
+gene sets annotated by human gene symbols.</p>
 <pre class="r"><code>DEG.stat.dt %&gt;%
     left_join(probe.info.map) %&gt;%
     select(probe, gene_symbol, P.Value, adj.P.Val) %&gt;%
@@ -833,47 +951,10 @@ monkeys</td>
 diseases/phenotypes from <a href="https://www.ebi.ac.uk/gwas/">the
 NHGRI-EBI GWAS Catalog</a>. The GWAS catalogue file is already processed
 and stored in this repository for your convenience, but you’re welcome
-to try out the code.</p>
-<pre class="r"><code>## It make take some time
-gwas.file &lt;- &quot;gwas_catalog_v1.0-associations_e105_r2022-02-02.tsv.gz&quot;
-
-run.if.needed(gwas.file, {
-    url &lt;- &quot;https://www.ebi.ac.uk/gwas/api/search/downloads/full&quot;
-    .file &lt;- str_remove(gwas.file, &quot;.gz$&quot;)
-    download.file(url, destfile = .file)
-    gzip(.file)
-    unlink(.file)
-})
-
-## make it tidy by taking only what we need
-gwas.tidy.file &lt;- &quot;gwas_catalog_tidy.tsv.gz&quot;
-
-run.if.needed(gwas.tidy.file, {
-
-    .dt &lt;-
-        fread(gwas.file, sep=&quot;\t&quot;, quote=&quot;&quot;) %&gt;%
-        select(`MAPPED_GENE`, `DISEASE/TRAIT`, `PVALUE_MLOG`)
-
-    ## remove redundant associations
-    .dt &lt;- .dt[order(.dt$PVALUE_MLOG, decreasing = TRUE),
-               head(.SD, 1),
-               by = .(`MAPPED_GENE`, `DISEASE/TRAIT`)]
-
-    ## remove traits with too few associations
-    .count &lt;- .dt[, .(.N), by = .(`DISEASE/TRAIT`)]
-    .dt &lt;- left_join(.count[`N` &gt;= 100, ], .dt)[nchar(`MAPPED_GENE`)&gt; 0,]
-
-    ## simply split gene lists and unlist
-    .dt &lt;- .dt[,
-               .(gene_symbol = unlist(strsplit(`MAPPED_GENE`, split=&quot;[ ,.-]+&quot;))),
-               by = .(`DISEASE/TRAIT`, PVALUE_MLOG)]
-    .dt[, p.value := 10^(-PVALUE_MLOG)]
-
-    fwrite(.dt, file=gwas.tidy.file)
-})
-
-gwas.db &lt;- fread(gwas.tidy.file)
-gwas.db[, gs_name := `DISEASE/TRAIT`]</code></pre>
+to try out the code <a href="https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd"><code>here</code></a>.</p>
+<pre class="r"><code>gwas.tidy.file &lt;- &quot;gwas_catalog_tidy.tsv.gz&quot;</code></pre>
+<pre class="r"><code>gwas.db &lt;- fread(gwas.tidy.file)      # fread to read gzipped txt file
+gwas.db[, gs_name := `DISEASE/TRAIT`] # will use gs_name for a gene set name</code></pre>
 <ul>
 <li><em>Note</em>: <code>fread</code>, <code>strsplit</code>, and
 <code>by=.()</code> operations are usually much faster than the
@@ -976,9 +1057,9 @@ ggplot(.dt, aes(g, -log10(adj.P.Val), colour=`gs_name`)) +
 <li>Which one is significant?</li>
 </ul>
 </div>
-<div id="remember-that-we-learned-in-the-class-about-the-hypergeometric-test" class="section level4">
-<h4>Remember that we learned in the class about the hypergeometric
-test!</h4>
+<div id="remember-that-we-learned-about-the-hypergeometric-test-in-the-class" class="section level4">
+<h4>Remember that we learned about the hypergeometric test in the
+class!</h4>
 <p>What are the counts? Let’s match gene counts with the black/white
 ball analogy used in <code>R</code>’s <code>phyper</code> manual
 page.</p>
@@ -1262,12 +1343,13 @@ precautions.</p>
 <h3>Gene set analysis based on empirical null distribution</h3>
 <div id="why-do-we-need-another-gsa-method" class="section level4">
 <h4>Why do we need another GSA method?</h4>
-<p>Remember the null data generating process of the hypergeometric
-distribution: a uniform sampling of balls in urns without replacement.
-Well, the “without replacement” part makes sense because we don’t draw a
-DEG more than once in our analysis. However, the “uniform sampling” part
-may not hold in practice considering that some balls can be bigger than
-the other. Those bigger balls can be coloured differently.</p>
+<p>We decided to use a hypergeometric test, we implicitly take the
+assumption of <em>a uniform sampling</em> of balls in urns <em>without
+replacement</em>. Well, the “without replacement” part makes sense
+because we don’t draw a DEG more than once in our analysis. However, the
+“uniform sampling” part may not hold in practice considering that some
+balls can be bigger than the other. Those bigger balls can be coloured
+differently.</p>
 <p>In the gene set terminology, we need to ask the following
 questions:</p>
 <ul>
@@ -1331,7 +1413,7 @@ a result of an evolutionary process. They can be more recent, a
 constituent of multiple gene duplicates relating to the brain or
 mammalian-specific functions, such as neurons and energy
 consumption.</p>
-<p><a href="https://www.frontiersin.org/articles/10.3389/fgene.2021.559998/full">Gene
+<p>You might want to read this paper: <a href="https://www.frontiersin.org/articles/10.3389/fgene.2021.559998/full">Gene
 Size Matters: An Analysis of Gene Length in the Human Genome</a></p>
 </div>
 </div>
@@ -1810,99 +1892,99 @@ way:</p>
 <td align="left">KEGG_RIBOSOME</td>
 <td align="right">0.0000000</td>
 <td align="right">0.0000001</td>
-<td align="right">0.8140358</td>
+<td align="right">0.8012156</td>
 <td align="right">0.6856763</td>
-<td align="right">1.971334</td>
+<td align="right">1.977807</td>
 <td align="right">66</td>
 <td align="left">RPL31, RPL23A, RPL15</td>
 </tr>
 <tr class="even">
 <td align="left">KEGG_CELL_CYCLE</td>
-<td align="right">0.0000886</td>
-<td align="right">0.0082354</td>
+<td align="right">0.0001190</td>
+<td align="right">0.0110348</td>
 <td align="right">0.5384341</td>
 <td align="right">0.5048543</td>
-<td align="right">1.496896</td>
+<td align="right">1.498543</td>
 <td align="right">122</td>
 <td align="left">CCND1, CDKN1C, MCM6</td>
 </tr>
 <tr class="odd">
 <td align="left">KEGG_PROGESTERONE_MEDIATED_OOCYTE_MATURATION</td>
-<td align="right">0.0002143</td>
-<td align="right">0.0132839</td>
+<td align="right">0.0001780</td>
+<td align="right">0.0110348</td>
 <td align="right">0.5188481</td>
 <td align="right">0.5345082</td>
-<td align="right">1.557803</td>
+<td align="right">1.561810</td>
 <td align="right">83</td>
 <td align="left">KRAS, CCNB1, PIK3R1</td>
 </tr>
 <tr class="even">
-<td align="left">KEGG_DNA_REPLICATION</td>
-<td align="right">0.0004717</td>
-<td align="right">0.0219334</td>
-<td align="right">0.4984931</td>
-<td align="right">0.6193616</td>
-<td align="right">1.704764</td>
-<td align="right">34</td>
-<td align="left">MCM6, MCM7, MCM2</td>
-</tr>
-<tr class="odd">
-<td align="left">KEGG_AXON_GUIDANCE</td>
-<td align="right">0.0006091</td>
-<td align="right">0.0220042</td>
-<td align="right">0.4772708</td>
-<td align="right">0.4792875</td>
-<td align="right">1.424418</td>
-<td align="right">128</td>
-<td align="left">ABLIM1, NCK2, ROBO2</td>
-</tr>
-<tr class="even">
 <td align="left">KEGG_CYSTEINE_AND_METHIONINE_METABOLISM</td>
-<td align="right">0.0007098</td>
-<td align="right">0.0220042</td>
-<td align="right">0.4772708</td>
+<td align="right">0.0004808</td>
+<td align="right">0.0195909</td>
+<td align="right">0.4984931</td>
 <td align="right">0.6236481</td>
-<td align="right">1.705973</td>
+<td align="right">1.682046</td>
 <td align="right">32</td>
 <td align="left">CDO1, AMD1, DNMT3B</td>
 </tr>
 <tr class="odd">
+<td align="left">KEGG_DNA_REPLICATION</td>
+<td align="right">0.0005266</td>
+<td align="right">0.0195909</td>
+<td align="right">0.4772708</td>
+<td align="right">0.6193616</td>
+<td align="right">1.680075</td>
+<td align="right">34</td>
+<td align="left">MCM6, MCM7, MCM2</td>
+</tr>
+<tr class="even">
+<td align="left">KEGG_AXON_GUIDANCE</td>
+<td align="right">0.0007464</td>
+<td align="right">0.0231399</td>
+<td align="right">0.4772708</td>
+<td align="right">0.4792875</td>
+<td align="right">1.424937</td>
+<td align="right">128</td>
+<td align="left">ABLIM1, NCK2, ROBO2</td>
+</tr>
+<tr class="odd">
 <td align="left">KEGG_STEROID_BIOSYNTHESIS</td>
-<td align="right">0.0017580</td>
-<td align="right">0.0467120</td>
-<td align="right">0.4550599</td>
+<td align="right">0.0009664</td>
+<td align="right">0.0256796</td>
+<td align="right">0.4772708</td>
 <td align="right">0.6874421</td>
-<td align="right">1.756452</td>
+<td align="right">1.740184</td>
 <td align="right">17</td>
 <td align="left">CYP51A1, MSMO1, SQLE</td>
 </tr>
 <tr class="even">
-<td align="left">KEGG_TIGHT_JUNCTION</td>
-<td align="right">0.0029414</td>
-<td align="right">0.0615908</td>
-<td align="right">0.4317077</td>
-<td align="right">0.4577930</td>
-<td align="right">1.356589</td>
-<td align="right">119</td>
-<td align="left">YBX3, RRAS2, KRAS</td>
-</tr>
-<tr class="odd">
 <td align="left">KEGG_GAP_JUNCTION</td>
-<td align="right">0.0030154</td>
-<td align="right">0.0615908</td>
+<td align="right">0.0026824</td>
+<td align="right">0.0562003</td>
 <td align="right">0.4317077</td>
 <td align="right">0.4922953</td>
-<td align="right">1.435190</td>
+<td align="right">1.437865</td>
 <td align="right">82</td>
 <td align="left">TUBB2B, KRAS, PRKCA</td>
 </tr>
+<tr class="odd">
+<td align="left">KEGG_FRUCTOSE_AND_MANNOSE_METABOLISM</td>
+<td align="right">0.0027194</td>
+<td align="right">0.0562003</td>
+<td align="right">0.4317077</td>
+<td align="right">0.5769388</td>
+<td align="right">1.564999</td>
+<td align="right">34</td>
+<td align="left">HK2, PFKFB2, ALDOC</td>
+</tr>
 <tr class="even">
 <td align="left">KEGG_MAPK_SIGNALING_PATHWAY</td>
-<td align="right">0.0033113</td>
-<td align="right">0.0615908</td>
+<td align="right">0.0033853</td>
+<td align="right">0.0629671</td>
 <td align="right">0.4317077</td>
 <td align="right">0.4140507</td>
-<td align="right">1.263498</td>
+<td align="right">1.259731</td>
 <td align="right">259</td>
 <td align="left">MEF2C, JUN, CACNB2</td>
 </tr>
@@ -1924,7 +2006,7 @@ gwas.fgsea %&gt;%
 <table>
 <colgroup>
 <col width="37%" />
-<col width="5%" />
+<col width="6%" />
 <col width="7%" />
 <col width="8%" />
 <col width="8%" />
@@ -1947,103 +2029,103 @@ gwas.fgsea %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">Protein quantitative trait loci (liver)</td>
-<td align="right">0e+00</td>
-<td align="right">5.00e-07</td>
-<td align="right">0.7881868</td>
+<td align="right">0.0e+00</td>
+<td align="right">1.00e-07</td>
+<td align="right">0.8140358</td>
 <td align="right">0.4132858</td>
-<td align="right">1.302664</td>
+<td align="right">1.306061</td>
 <td align="right">1217</td>
 <td align="left">SGK1, KLHL1, INHBB</td>
 </tr>
 <tr class="even">
 <td align="left">Metabolite levels</td>
-<td align="right">0e+00</td>
-<td align="right">1.10e-06</td>
-<td align="right">0.7477397</td>
+<td align="right">0.0e+00</td>
+<td align="right">9.00e-07</td>
+<td align="right">0.7614608</td>
 <td align="right">0.4095140</td>
-<td align="right">1.289898</td>
+<td align="right">1.292877</td>
 <td align="right">1135</td>
 <td align="left">SGK1, ATOH7, C14orf132</td>
 </tr>
 <tr class="odd">
-<td align="left">Schizophrenia</td>
-<td align="right">0e+00</td>
-<td align="right">1.10e-06</td>
-<td align="right">0.7477397</td>
-<td align="right">0.4341164</td>
-<td align="right">1.355390</td>
-<td align="right">677</td>
-<td align="left">MEF2C, TMTC1, LIMA1</td>
-</tr>
-<tr class="even">
 <td align="left">Cortical surface area</td>
-<td align="right">0e+00</td>
-<td align="right">1.10e-06</td>
+<td align="right">0.0e+00</td>
+<td align="right">9.00e-07</td>
 <td align="right">0.7477397</td>
 <td align="right">0.4355612</td>
-<td align="right">1.360679</td>
+<td align="right">1.363797</td>
 <td align="right">699</td>
 <td align="left">MEF2C, SOX11, WWC1</td>
 </tr>
+<tr class="even">
+<td align="left">Schizophrenia</td>
+<td align="right">0.0e+00</td>
+<td align="right">1.70e-06</td>
+<td align="right">0.7337620</td>
+<td align="right">0.4341164</td>
+<td align="right">1.358561</td>
+<td align="right">677</td>
+<td align="left">MEF2C, TMTC1, LIMA1</td>
+</tr>
 <tr class="odd">
 <td align="left">Highest math class taken (MTAG)</td>
-<td align="right">0e+00</td>
-<td align="right">2.90e-06</td>
+<td align="right">1.0e-07</td>
+<td align="right">3.30e-06</td>
 <td align="right">0.7195128</td>
 <td align="right">0.4244059</td>
-<td align="right">1.327602</td>
+<td align="right">1.330581</td>
 <td align="right">738</td>
 <td align="left">MEF2C, SALL3, INHBB</td>
 </tr>
 <tr class="even">
-<td align="left">Educational attainment (MTAG)</td>
-<td align="right">4e-07</td>
-<td align="right">1.87e-05</td>
-<td align="right">0.6749629</td>
-<td align="right">0.4094558</td>
-<td align="right">1.286153</td>
-<td align="right">900</td>
-<td align="left">MEF2C, OSBPL3, SLC17A1</td>
-</tr>
-<tr class="odd">
-<td align="left">Systolic blood pressure</td>
-<td align="right">5e-07</td>
-<td align="right">1.87e-05</td>
-<td align="right">0.6749629</td>
-<td align="right">0.3962629</td>
-<td align="right">1.248758</td>
-<td align="right">1168</td>
-<td align="left">PFKFB2, LIMA1, AHRR</td>
-</tr>
-<tr class="even">
 <td align="left">PR interval</td>
-<td align="right">5e-07</td>
-<td align="right">1.87e-05</td>
-<td align="right">0.6594444</td>
+<td align="right">3.0e-07</td>
+<td align="right">1.34e-05</td>
+<td align="right">0.6749629</td>
 <td align="right">0.5005374</td>
-<td align="right">1.522001</td>
+<td align="right">1.536959</td>
 <td align="right">220</td>
 <td align="left">BCL6, SYNE3, EPAS1</td>
 </tr>
 <tr class="odd">
+<td align="left">Systolic blood pressure</td>
+<td align="right">3.0e-07</td>
+<td align="right">1.34e-05</td>
+<td align="right">0.6749629</td>
+<td align="right">0.3962629</td>
+<td align="right">1.251695</td>
+<td align="right">1168</td>
+<td align="left">PFKFB2, LIMA1, AHRR</td>
+</tr>
+<tr class="even">
 <td align="left">Educational attainment (years of education)</td>
-<td align="right">9e-07</td>
-<td align="right">2.93e-05</td>
-<td align="right">0.6594444</td>
+<td align="right">3.0e-07</td>
+<td align="right">1.34e-05</td>
+<td align="right">0.6749629</td>
 <td align="right">0.4040904</td>
-<td align="right">1.270307</td>
+<td align="right">1.273761</td>
 <td align="right">968</td>
 <td align="left">MEF2C, SLC17A1, KCNJ3</td>
 </tr>
+<tr class="odd">
+<td align="left">Educational attainment (MTAG)</td>
+<td align="right">4.0e-07</td>
+<td align="right">1.37e-05</td>
+<td align="right">0.6749629</td>
+<td align="right">0.4094558</td>
+<td align="right">1.289082</td>
+<td align="right">900</td>
+<td align="left">MEF2C, OSBPL3, SLC17A1</td>
+</tr>
 <tr class="even">
-<td align="left">Cortical thickness</td>
-<td align="right">1e-06</td>
-<td align="right">2.93e-05</td>
+<td align="left">Self-reported math ability (MTAG)</td>
+<td align="right">1.5e-06</td>
+<td align="right">4.82e-05</td>
 <td align="right">0.6435518</td>
-<td align="right">0.4313908</td>
-<td align="right">1.339948</td>
-<td align="right">519</td>
-<td align="left">MEF2C, SOX11, ECE1</td>
+<td align="right">0.4309756</td>
+<td align="right">1.344180</td>
+<td align="right">518</td>
+<td align="left">MEF2C, INHBB, GALNT13</td>
 </tr>
 </tbody>
 </table>
@@ -2069,7 +2151,9 @@ Show your results as top KEGG pathways and GWAS disease/traits.</p>
 <h2>Deliverable #2 (1pt)</h2>
 <ul>
 <li>Run <code>fgsea</code> or <a href="https://bioconductor.org/packages/release/bioc/html/GSEABase.html"><code>GSEABase</code></a>
-for the same DEGs testing the interaction effect (0.5 pt).</li>
+for the same DEGs testing the interaction effect (0.5 pt). What will be
+your choice of gene-level scores? You can also take into account the
+sign of effect sizes.</li>
 </ul>
 <pre class="r"><code>## your code here</code></pre>
 <ul>
