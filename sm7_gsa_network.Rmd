@@ -16,21 +16,50 @@ This seminar was developed by Yongjin Park
 
 ## Learning Objectives
 
-1. Testing the over-representation of gene sets for your list of top significant genes
+1.  Testing the over-representation of gene sets for your list of top significant genes: `goseq`
 
-2. rank-based Gene Set Enrichment Analysis based on your list of gene-level scores
+2.  Rank-based Gene Set Enrichment Analysis based on your list of gene-level scores: `fgsea`
 
+## Packages required
+
+Please make sure you are able to load the following libraries before starting the seminar
+
+```{r load, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
+
+library(tidyverse)         # our good friend
+library(patchwork)
+library(data.table)        # very handy with large tables
+library(R.utils)           # need this to handle gzipped data
+
+# Please make sure you have biomaRt installed but don't load it yet
+# biomaRt creates namespace conflicts with dplyr. So we just want load 
+# it when required
+# library(biomaRt)           # annotate gene information 
+
+# The following libraries can be installed using Bioconductor:
+library(msigdbr)           # curated source of gene sets and functions
+library(goseq)             # tool for GO term enrichment analysis 
+library(fgsea)             # tool for gene set enrichment analysis 
+## fgsea can also be installed using the corresponding GitHub repo:
+## remotes::install_github("ctlab/fgsea")
+
+theme_set(theme_classic()) # classic theme ggplot
+
+```
+
+*Remark on a technical issue*: You may not be able to install everything from the scratch depending on your machine/platform. If you're using `Ubuntu/Debian` Linux, you might want to install some dependent `R` packages via `apt-get`:
+
+```{sh eval=FALSE}
+sudo apt install r-bioc-rsamtools
+sudo apt intall r-cran-biasedurn
+```
+
+*Remark on a technical issue*: You need `C++` compiler installed in your machine if you want to use `fgsea` with best performance.
 
 ```{r results='hide', message=FALSE, warning=FALSE, echo=FALSE}
 ###########################
 ## some helper functions ##
 ###########################
-
-library(tidyverse)         # our good friend
-library(patchwork)
-theme_set(theme_classic()) # classic theme ggplot
-library(data.table)        # very handy with large tables
-require(R.utils)           # need this to handle gzipped data
 
 #' Convert a number into a scientifically-formatted string
 #' @param x number
@@ -55,14 +84,13 @@ run.if.needed <- function(.file, .code) {
 
 Outline:
 
-* [Recap: Differential Expression analysis](#recap-Differential-Expression-Analysis)
+-   [Recap: Differential Expression analysis](#recap-Differential-Expression-Analysis)
 
-* [Part 1: When we know how to draw lines between the significant and the insignificant](#part-1-gene-set-analysis-testing-over-representation)
+-   [Part 1: When we know how to draw lines between the significant and the insignificant](#part-1-gene-set-analysis-testing-over-representation)
 
-* [Part 2: When we want to use gene-level scores to rank the importance](#part-2-rank-based-gene-set-enrichment-analysis)
+-   [Part 2: When we want to use gene-level scores to rank the importance](#part-2-rank-based-gene-set-enrichment-analysis)
 
-* [Deliverables](#deliverables)
-
+-   [Deliverables](#deliverables)
 
 # Recap Differential Expression Analysis
 
@@ -127,11 +155,7 @@ run.if.needed(probe.info.file, {
 
     ## Will use biomaRt that can access ENSEMBL database
     ## and make query to retrive what you need
-    if (!require("BiocManager", quietly = TRUE)){
-        install.packages("BiocManager")
-    }
-    if(!require(biomaRt)) BiocManager::install("biomaRt")
-
+    library(biomaRt)
     ## Loading biomaRt library can mess up dplyr namespace
     ## not sure about the current version of R and the package
     ## 0. Make an access point to mouse and human databases
@@ -210,7 +234,7 @@ probe.info.map <-
                    by = .(probe, gene_symbol, chr)]
 ```
 
-The same map, but a shorter list: `r num.int(n0)` $\to$ `r num.int(nrow(probe.info.map))`.
+The same map, but a shorter list: `r num.int(n0)` $\\to$ `r num.int(nrow(probe.info.map))`.
 
 ```{r}
 probe.info.map %>%
@@ -229,25 +253,23 @@ DEG.stat.dt %>%
     mutate(P.Value = num.sci(P.Value)) %>%
     mutate(adj.P.Val = num.sci(adj.P.Val)) %>%
     knitr::kable()
+
+# num.sci is a convenient function defined in the seminar's Rmd file to convert long numbers into scientific notation.
 ```
 
-* Why human gene names for the mouse study?
+-   Why human gene names for the mouse study?
 
-* Why do the same Affymetrix probe correspond to multiple human genes?
+-   Why do the same Affymetrix probe correspond to multiple human genes?
 
 # How/where to obtain biologically meaningful gene sets
 
 Here, we will use the MSigDB database and GWAS catalogue, but there are many ways you can obtain gene sets. Traditionally, Gene Ontology (GO) terms have been used as a go-to database for gene sets. However, the enrichment of GO terms might be slightly different from what we want to achieve in a set-based analysis. Unlike pathway annotations and GWAS catalogue, GO terms have hierarchical relationships (or directed acyclic graph) with one another, which we would need to consider in calibrating the null distribution.
 
-##  Molecular Signature Database
+## Molecular Signature Database
 
 [MSigDB](http://www.gsea-msigdb.org/gsea/msigdb/) provides a comprehensive list of gene sets and pathways manually curated by experts or derived from previous experimental results, including GO terms. We do not need to download them one by one since someone made a convenient package to retrieve a current version of MSigDB into R. You can download the raw text files from the website, too.
 
 **Note**: We will interchangeably use a pathway and a gene set since we do not deal with gene-gene interactions within a pathway.
-
-```{r eval=FALSE}
-if(!require(msigdbr)) install.packages("msigdbr")
-```
 
 There are many species:
 
@@ -271,7 +293,7 @@ KEGG.human.db <- msigdbr::msigdbr(species = "human",
 
 ## GWAS catalog
 
-We can download public data mapping SNPs (genes) to diseases/phenotypes from [the NHGRI-EBI GWAS Catalog](https://www.ebi.ac.uk/gwas/). The GWAS catalogue file is already processed and stored in this repository for your convenience, but you're welcome to try out the code [`here`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd). 
+We can download public data mapping SNPs to diseases/phenotypes from [the NHGRI-EBI GWAS Catalog](https://www.ebi.ac.uk/gwas/). We can safely assume a SNP from any given gene can associate the gene itself with the disease/phenotype. The GWAS catalogue file is already processed and stored in this repository for your convenience, but you're welcome to try out the code [`here`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd).
 
 ```{r}
 gwas.tidy.file <- "gwas_catalog_tidy.tsv.gz"
@@ -318,9 +340,12 @@ run.if.needed(gwas.tidy.file, {
 ```{r}
 gwas.db <- fread(gwas.tidy.file)      # fread to read gzipped txt file
 gwas.db[, gs_name := `DISEASE/TRAIT`] # will use gs_name for a gene set name
+
+# The := annotation is specific to data.table, in this case we will create a column called 'gs_name' which will reference to the column "DISEASE/TRAIT"
+
 ```
 
-* *Note*: `fread`, `strsplit`, and `by=.()` operations are usually much faster than the `tidyverse` counterparts--`read_tsv`, `separate`, and `group_by()`. The GWAS catalogue is pretty big; the number of rows after pruning can increase to  `r format(nrow(gwas.db), big.mark = ",")` gene-level associations.
+-   *Note*: `fread`, `strsplit`, and `by=.()` operations are usually much faster than the `tidyverse` counterparts--`read_tsv`, `separate`, and `group_by()`. The GWAS catalogue is pretty big; the number of rows after pruning can increase to `r format(nrow(gwas.db), big.mark = ",")` gene-level associations.
 
 For instance, we can take GWAS genes associated with Alzheimer's disease-related disorders:
 
@@ -332,7 +357,15 @@ gwas.db[str_detect(`DISEASE/TRAIT`, "[Aa]lzheimer") & !is.na(gene_symbol)] %>%
     knitr::kable()
 ```
 
-* *Note*: `PVALUE_MLOG`: -log10(p-value).
+-   *Note*: `PVALUE_MLOG`: -log10(p-value).
+
+Lets do a quick recap before moving on the interesting part; what have we done so far?
+
+1.  Standardized gene nomenclature in results from [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm5_differential_expression_analysis.md) and matched probes to human gene symbols.
+
+2.  Loaded MSigDB information for human KEGG pathways.
+
+3.  Obtained known GWAS information about genes associated with disease/phenotype.
 
 # Part 1 Gene set analysis testing over-representation
 
@@ -340,7 +373,7 @@ gwas.db[str_detect(`DISEASE/TRAIT`, "[Aa]lzheimer") & !is.na(gene_symbol)] %>%
 
 #### What are the over-represented KEGG pathways?
 
-How do they look like? For instance, let's take a look at some pathways (`gs_name`). 
+How do they look like? For instance, let's take a look at some pathways (`gs_name`).
 
 ```{r fig_overrep_kegg_pathways, fig.width=8, fig.height=3}
 .gs <- c("KEGG_NEUROTROPHIN_SIGNALING_PATHWAY",
@@ -366,16 +399,16 @@ ggplot(.dt, aes(g, -log10(adj.P.Val), colour=`gs_name`)) +
                        labels = function(x) num.sci(10^(-x)))
 ```
 
-* Which one is significant?
+-   Which one is significant?
 
 #### Remember that we learned about the hypergeometric test in the class!
 
-What are the counts?  Let's match gene counts with the black/white ball analogy used in `R`'s `phyper` manual page.
+What are the counts? Let's match gene counts with the black/white ball analogy used in `R`'s `phyper` manual page.
 
-* `q`: the number of genes in the pathway (**white** balls) overlapping with the genes in the DEG list (balls **drawn**)
-* `m`: the number of genes in this pathay (**white** balls)
-* `n`: the number of genes not in this pathway (**black** balls)
-* `k`: the number of genes in the DEG list (balls **drawn**)
+-   `q`: the number of genes in the pathway (**white** balls) overlapping with the genes in the DEG list (balls **drawn**)
+-   `m`: the number of genes in this pathay (**white** balls)
+-   `n`: the number of genes not in this pathway (**black** balls)
+-   `k`: the number of genes in the DEG list (balls **drawn**)
 
 Under the null hypothesis:
 
@@ -393,10 +426,9 @@ In `R`'s `phyper`, it's as simple as:
 phyper(q, m, n, k, lower.tail = FALSE)
 ```
 
-
 #### Let's test all the genes and pathways more systematically
 
-```{r} 
+```{r}
 #' @param gene.dt gene-level statitsics with `gene_symbol` and `adj.P.Val`
 #' @param geneset.dt gene set membership with `gene_symbol` and `gs_name`
 run.hyper.test <- function(gene.dt, geneset.dt, cutoff = CUTOFF) {
@@ -467,15 +499,15 @@ For the DEGs associated with neurodevelopmental stages, many of them make sense!
 
 ### Gene set analysis based on empirical null distribution
 
-#### Why do we need another GSA method? 
+#### Why do we need another GSA method?
 
 We decided to use a hypergeometric test, we implicitly take the assumption of *a uniform sampling* of balls in urns *without replacement*. Well, the "without replacement" part makes sense because we don't draw a DEG more than once in our analysis. However, the "uniform sampling" part may not hold in practice considering that some balls can be bigger than the other. Those bigger balls can be coloured differently.
 
 In the gene set terminology, we need to ask the following questions:
 
-* Are all the genes equally distributed in the gene sets?
+-   Are all the genes equally distributed in the gene sets?
 
-* Did our DEG analysis tend to hit genes and pathways "uniformly?"
+-   Did our DEG analysis tend to hit genes and pathways "uniformly?"
 
 Let's use all the canonical pathways in the MSig database to demonstrate a potential bias.
 
@@ -550,20 +582,6 @@ You might want to read this paper: [Gene Size Matters: An Analysis of Gene Lengt
 
 We will use [`goseq`](https://bioconductor.org/packages/release/bioc/html/goseq.html) method--[Gene ontology analysis for RNA-seq: accounting for selection bias](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-2-r14). Even though the method was initially developed for GO term enrichment analysis, it can handle any other types of gene sets.
 
-#### Install `goseq` package to ease your job.
-
-```{r eval=FALSE}
-if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-if (!require(goseq)) BiocManager::install("goseq")
-```
-
-*Remark on a technical issue*: You may not be able to install everything from the scratch depending on your machine/platform. If you're using `Ubuntu/Debian` Linux, you might want to install some dependent `R` packages via `apt-get`:
-
-```{sh eval=FALSE}
-sudo apt install r-bioc-rsamtools
-sudo apt intall r-cran-biasedurn
-```
-
 ### Run `goseq` analysis to take into account gene-level biases
 
 Prepare our DEG list for the `goseq` analysis
@@ -593,18 +611,13 @@ tail(deg.vec)
 
 The `goseq` method addresses a potential gene-level bias by estimating gene-level weights (a null distribution of gene lengths) in our DEG study. The following is an excerpt from the `goseq` vignette:
 
-> "We first need to obtain a weighting for each gene, depending on its
-> length, given by the PWF.  As you may have noticed when running
-> supportedGenomes or supportedGeneIDs, length data is available in
-> the local database for our gene ID, “ensGene” and our genome,
-> "hg19". We will let goseq automatically fetch this data from its
-> databases."
+> "We first need to obtain a weighting for each gene, depending on its length, given by the PWF. As you may have noticed when running supportedGenomes or supportedGeneIDs, length data is available in the local database for our gene ID, "ensGene" and our genome, "hg19". We will let goseq automatically fetch this data from its databases."
 
 ```{r fig_goseq_nullp, fig.width=7, fig.height=5}
 pwf <- goseq::nullp(deg.vec,"hg19","ensGene")
 ```
 
-Using this null PWF object, we can simply run tests for  all the GO terms. As the name suggests, we do not need to prepare anything else for GO enrichment analysis.
+Using this null PWF object, we can simply run tests for all the GO terms. As the name suggests, we do not need to prepare anything else for GO enrichment analysis.
 
 ```{r}
 goseq.results.file <- "goseq_results.RDS"
@@ -625,27 +638,25 @@ head(goseq.results, 10) %>%
 
 How about other custom gene sets, e.g., KEGG pathways or all the canonical pathways? Let's take a look at the following excerpt in the manual page.
 
-```
-Usage:
+    Usage:
 
-     goseq(pwf, genome, id, gene2cat = NULL,  
-             test.cats=c("GO:CC", "GO:BP", "GO:MF"), 
-             method = "Wallenius", repcnt = 2000, use_genes_without_cat=FALSE)
+         goseq(pwf, genome, id, gene2cat = NULL,  
+                 test.cats=c("GO:CC", "GO:BP", "GO:MF"), 
+                 method = "Wallenius", repcnt = 2000, use_genes_without_cat=FALSE)
 
-Arguments:
+    Arguments:
 
-     pwf: An object containing gene names, DE calls, the probability
-          weighting function. Usually generated by nullp.
+         pwf: An object containing gene names, DE calls, the probability
+              weighting function. Usually generated by nullp.
 
-  genome: A string identifying the genome that ‘genes’ refer to.  For a
-          list of supported organisms run supportedGenomes.
+      genome: A string identifying the genome that ‘genes’ refer to.  For a
+              list of supported organisms run supportedGenomes.
 
-      id: A string identifying the gene identifier used by ‘genes’.
-          For a list of supported gene IDs run supportedGeneIDs.
+          id: A string identifying the gene identifier used by ‘genes’.
+              For a list of supported gene IDs run supportedGeneIDs.
 
-gene2cat: A data frame with two columns containing the mapping between
-          genes and the categories of interest.
-```
+    gene2cat: A data frame with two columns containing the mapping between
+              genes and the categories of interest.
 
 We can build a custom `gene2cat` `data.frame`.
 
@@ -672,7 +683,7 @@ head(canonical.goseq.results, 10) %>%
 # Part 2 Rank-based Gene Set Enrichment Analysis
 
 Let's take back. What is the premise of (discrete) gene set analysis? In our DEG analysis, we discovered `r nrow(DEG.stat.dt[adj.P.Val < CUTOFF])` probes/genes (of a total of `r nrow(DEG.stat.dt)` probes) significantly perturbed over the course of developmental process. It can be tricky to determine when to draw the line between the significant and the insignificant genes.
- 
+
 ```{r fig_fdr_line, fig.width=7, fig.height=3}
 ggplot(DEG.stat.dt, aes(1:nrow(DEG.stat.dt), -log10(adj.P.Val))) +
     geom_point(stroke=0) +
@@ -685,30 +696,7 @@ ggplot(DEG.stat.dt, aes(1:nrow(DEG.stat.dt), -log10(adj.P.Val))) +
                        labels=function(x) num.sci(10^(-x)))
 ```
 
-## Step 0. Install "fast" Gene Set Enrichment Analysis
-
-The original Gene Set Enrichment Analysis method is not so scalable and gunky in permutation steps. To calibrate low P-values, e.g., 1e-6, you would literally need to sample a million permutations for all the gene sets (with some exaggeration). The authors of `fgsea` come up with smart computation tricks and approximate p-value calculation quite accurately. You can check out this preprint: [https://www.biorxiv.org/content/10.1101/060012v3](https://www.biorxiv.org/content/10.1101/060012v3)
-
-#### Option 1. `Bioconductor` package manager
-
-```{r eval=FALSE}
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("fgsea")
-```
-
-#### Option 2. Compile source codes in the `GitHub` repository
-
-[https://github.com/ctlab/fgsea](https://github.com/ctlab/fgsea)
-
-```{r eval=FALSE}
-remotes::install_github("ctlab/fgsea")
-```
-
-*Remark on a technical issue*: You need `C++` compiler installed in
-your machine if you want to use this package with best performance.
-
+The original Gene Set Enrichment Analysis method is not so scalable and gunky in permutation steps. To calibrate low P-values, e.g., 1e-6, you would literally need to sample a million permutations for all the gene sets (with some exaggeration). The authors of `fgsea` come up with smart computation tricks and approximate p-value calculation quite accurately. You can check out this preprint: <https://www.biorxiv.org/content/10.1101/060012v3>
 
 ## Step 1. Prepare your gene sets to feed them in to `fgsea` arguments
 
@@ -801,13 +789,13 @@ gwas.fgsea %>%
 
 Run the discrete version of gene set analysis for the genes significantly associated with the interaction effect in [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/e042df71546221beb96ae44dbf252568c7797a93/sm5_differential_expression_analysis.Rmd#L706). Show your results as top KEGG pathways and GWAS disease/traits.
 
-* (0.5 pt) Run hypergeometric tests.
+-   (0.5 pt) Run hypergeometric tests.
 
 ```{r}
 ## your code here
 ```
 
-* (0.5 pt) Run `goseq` analysis.
+-   (0.5 pt) Run `goseq` analysis.
 
 ```{r}
 ## your code here
@@ -815,12 +803,10 @@ Run the discrete version of gene set analysis for the genes significantly associ
 
 ## Deliverable \#2 (1pt)
 
-* Run `fgsea` or  [`GSEABase`](https://bioconductor.org/packages/release/bioc/html/GSEABase.html) for the same DEGs testing the interaction effect (0.5 pt). What will be your choice of gene-level scores? You can also take into account the sign of effect sizes.
+-   Run `fgsea` or [`GSEABase`](https://bioconductor.org/packages/release/bioc/html/GSEABase.html) for the same DEGs testing the interaction effect (0.5 pt). What will be your choice of gene-level scores? You can also take into account the sign of effect sizes.
 
 ```{r}
 ## your code here
 ```
 
-* **Discussion**: Can we handle gene-level bias in `fgsea` or other GSEA methods? Justify your answer and suggest possible improvement/correction ideas (0.5 pt).
-
-
+-   **Discussion**: Can we handle gene-level bias in `fgsea` or other GSEA methods? Justify your answer and suggest possible improvement/correction ideas (0.5 pt).
