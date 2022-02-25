@@ -2,32 +2,6 @@ STAT 540 - Seminar 7: Gene Set Enrichment Analysis
 ================
 Last update: 25 febrero, 2022 @ 11:03
 
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    TeX: {
-      equationNumbers: { autoNumber: "AMS" },
-      tagSide: "right"
-    },
-    tex2jax: {
-      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-      processEscapes: true
-    }
-  });
-  MathJax.Hub.Register.StartupHook("TeX AMSmath Ready", function () {
-    MathJax.InputJax.TeX.Stack.Item.AMSarray.Augment({
-      clearTag() {
-        if (!this.global.notags) {
-          this.super(arguments).clearTag.call(this);
-        }
-      }
-    });
-  });
-</script>
-<script type="text/javascript" charset="utf-8"
-  src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML">
-</script>
-
 ## Attributions
 
 This seminar was developed by Yongjin Park
@@ -434,7 +408,9 @@ analogy used in `R`’s `phyper` manual page.
 
 Under the null hypothesis:
 
-$$H_{0} : q \le q^{'}$$
+<!-- $$H_{0} : q \le q^{'}$$ -->
+
+<img src="eqn/eq1_hypothesis.png" style="display: block; margin: auto;" />
 
 We may observe *q*<sup>⋆</sup> (out of *k*) genes overlapping with a
 gene set of interest by random sampling of *k* genes **without**
@@ -442,7 +418,9 @@ replacement.
 
 Therefore, we can calculate the p-value:
 
-$$P(q > q^{\star}|n, m, k) = 1 - \sum_{q = 0}^{q^{\star}} {m \choose q } {n \choose k-q} / {n+m \choose k}$$
+<!-- $$P(q > q^{\star}|n, m, k) = 1 - \sum_{q = 0}^{q^{\star}} {m \choose q } {n \choose k-q} / {n+m \choose k}$$ -->
+
+<img src="eqn/eq2_tail_prob.png" style="display: block; margin: auto;" />
 
 In `R`’s `phyper`, it’s as simple as:
 
