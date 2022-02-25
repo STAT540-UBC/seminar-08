@@ -2,6 +2,32 @@ STAT 540 - Seminar 7: Gene Set Enrichment Analysis
 ================
 Last update: 25 febrero, 2022 @ 11:03
 
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: {
+      equationNumbers: { autoNumber: "AMS" },
+      tagSide: "right"
+    },
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    }
+  });
+  MathJax.Hub.Register.StartupHook("TeX AMSmath Ready", function () {
+    MathJax.InputJax.TeX.Stack.Item.AMSarray.Augment({
+      clearTag() {
+        if (!this.global.notags) {
+          this.super(arguments).clearTag.call(this);
+        }
+      }
+    });
+  });
+</script>
+<script type="text/javascript" charset="utf-8"
+  src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+
 ## Attributions
 
 This seminar was developed by Yongjin Park
