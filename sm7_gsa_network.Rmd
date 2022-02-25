@@ -412,13 +412,13 @@ What are the counts? Let's match gene counts with the black/white ball analogy u
 
 Under the null hypothesis:
 
-$$H_{0}:\, q \le q^{\star}$$
+$$H\_{0}:, q \\le q^{\\star}$$
 
-We may observe $q^{\star}$ (out of $k$) genes overlapping with a gene set of interest by random sampling of $k$ genes **without** replacement.
+We may observe $q^{\\star}$ (out of $k$) genes overlapping with a gene set of interest by random sampling of $k$ genes **without** replacement.
 
 Therefore, we can calculate the p-value:
 
-$P(q > q^{\star}|n, m, k) = 1 - \sum_{q = 0}^{q^{\star}} {m \choose q } {n \choose k-q} / {n+m \choose k}$
+$P(q \> q^{\\star}\|n, m, k) = 1 - \\sum\_{q = 0}^{q^{\\star}} {m \\choose q } {n \\choose k-q} / {n+m \\choose k}$
 
 In `R`'s `phyper`, it's as simple as:
 
@@ -501,7 +501,7 @@ For the DEGs associated with neurodevelopmental stages, many of them make sense!
 
 #### Why do we need another GSA method?
 
-We decided to use a hypergeometric test, we implicitly take the assumption of *a uniform sampling* of balls in urns *without replacement*. Well, the "without replacement" part makes sense because we don't draw a DEG more than once in our analysis. However, the "uniform sampling" part may not hold in practice considering that some balls can be bigger than the other. Those bigger balls can be coloured differently.
+We decided to use a hypergeometric test, we implicitly take the assumption of *a uniform sampling* of balls in urns *without replacement*. Well, the "without replacement" part makes sense because we don't draw a DEG more than once in our analysis. However, the "uniform sampling" part may not hold in practice considering that some balls can be bigger than the other. Those bigger balls can be colored differently.
 
 In the gene set terminology, we need to ask the following questions:
 
@@ -735,8 +735,12 @@ deg.scores <- DEG.stat.dt %>%
     filter(!is.na(ensembl_gene_id)) %>% 
     arrange(P.Value) %>% 
     as.data.table %>% 
+  # Here .SD is a reference to the data itself. So in this case we are
+  # taking the most significant result from every gene symbol
     (function(.dt) { .dt[, head(.SD,1), by = .(gene_symbol)] }) %>%
+  # Convert the adjusted pvalue to a score
     mutate(v = -log10(adj.P.Val)) %>% 
+  # Reduce the data frame to a named vector of scores
     (function(.dt) { v <- .dt$v; names(v) <- .dt$gene_symbol; v })
 ```
 
@@ -751,6 +755,7 @@ kegg.fgsea <- fgsea::fgsea(pathways = KEGG.lol, stats = deg.scores, scoreType = 
 Show top 3 genes for each pathway:
 
 ```{r}
+# Here, we are "pasting" the first three genes in the leadingEdge column
 kegg.fgsea[,
            topGenes := paste0(head(unlist(`leadingEdge`), 3), collapse=", "),
            by = .(pathway)]
@@ -787,15 +792,28 @@ gwas.fgsea %>%
 
 ## Deliverable \#1 (1pt)
 
-Run the discrete version of gene set analysis for the genes significantly associated with the interaction effect in [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/e042df71546221beb96ae44dbf252568c7797a93/sm5_differential_expression_analysis.Rmd#L706). Show your results as top KEGG pathways and GWAS disease/traits.
+Run the discrete version of gene set analysis for the genes significantly associated with the interaction effect in [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/e042df71546221beb96ae44dbf252568c7797a93/sm5_differential_expression_analysis.Rmd#L706). Show your results as the top 10 KEGG pathways or GWAS disease/traits.
+
+-   Prepare input: get DEGs wich are associated with the interaction effect.
+
+*Hint: Remember to join your results with the variable* `probe.info.map`
+
+```{r}
+## your code here
+
+```
 
 -   (0.5 pt) Run hypergeometric tests.
+
+*Hint: use the custom function that implements* `phyper()`
 
 ```{r}
 ## your code here
 ```
 
 -   (0.5 pt) Run `goseq` analysis.
+
+*Hint: Don't forget to create your null distribution for the interaction genes.*
 
 ```{r}
 ## your code here
@@ -804,6 +822,14 @@ Run the discrete version of gene set analysis for the genes significantly associ
 ## Deliverable \#2 (1pt)
 
 -   Run `fgsea` or [`GSEABase`](https://bioconductor.org/packages/release/bioc/html/GSEABase.html) for the same DEGs testing the interaction effect (0.5 pt). What will be your choice of gene-level scores? You can also take into account the sign of effect sizes.
+
+For reproducibility, please set the parameter `nproc = 1` from `fgsea()` function and don't change the seed in the following chunk:
+
+```{r}
+set.seed(123)
+```
+
+*Hint: Remember to use list of lists (lol) for one of the inputs.*
 
 ```{r}
 ## your code here
