@@ -47,7 +47,7 @@ packages via `apt-get`:
 
 ``` sh
 sudo apt install r-bioc-rsamtools
-sudo apt intall r-cran-biasedurn
+sudo apt install r-cran-biasedurn
 ```
 
 *Remark on a technical issue*: You need `C++` compiler installed in your
