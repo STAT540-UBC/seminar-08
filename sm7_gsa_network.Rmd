@@ -234,7 +234,7 @@ probe.info.map <-
                    by = .(probe, gene_symbol, chr)]
 ```
 
-The same map, but a shorter list: `r num.int(n0)` $\\to$ `r num.int(nrow(probe.info.map))`.
+The same map, but a shorter list: `r num.int(n0)` to `r num.int(nrow(probe.info.map))`.
 
 ```{r}
 probe.info.map %>%
@@ -412,13 +412,19 @@ What are the counts? Let's match gene counts with the black/white ball analogy u
 
 Under the null hypothesis:
 
-$$H\_{0}:, q \\le q^{\\star}$$
+$$
 
-We may observe $q^{\\star}$ (out of $k$) genes overlapping with a gene set of interest by random sampling of $k$ genes **without** replacement.
+H_{0} : q \le q^{\star}
+
+$$
+
+We may observe $q^{\star}$ (out of $k$) genes overlapping with a gene set of interest by random sampling of $k$ genes **without** replacement.
 
 Therefore, we can calculate the p-value:
 
-$P(q \> q^{\\star}\|n, m, k) = 1 - \\sum\_{q = 0}^{q^{\\star}} {m \\choose q } {n \\choose k-q} / {n+m \\choose k}$
+$$
+P(q \\> q^{\star}\|n, m, k) = 1 - \sum_{q = 0}^{q^{\star}} {m \choose q } {n \choose k-q} / {n+m \choose k}
+$$
 
 In `R`'s `phyper`, it's as simple as:
 

@@ -1,6 +1,6 @@
 STAT 540 - Seminar 7: Gene Set Enrichment Analysis
 ================
-Last update: 25 febrero, 2022 @ 10:47
+Last update: 25 febrero, 2022 @ 11:03
 
 ## Attributions
 
@@ -152,7 +152,7 @@ probe.info.map <-
                    by = .(probe, gene_symbol, chr)]
 ```
 
-The same map, but a shorter list: 336,181 $\\\\to$ 33,950.
+The same map, but a shorter list: 336,181 to 33,950.
 
 ``` r
 probe.info.map %>%
@@ -408,14 +408,21 @@ analogy used in `R`’s `phyper` manual page.
 
 Under the null hypothesis:
 
-$$H\\\_{0}:, q \\\\le q^{\\\\star}$$
+$$
 
-We may observe $q^{\\\\star}$ (out of *k*) genes overlapping with a gene
-set of interest by random sampling of *k* genes **without** replacement.
+H\_{0} : q q^{}
+
+$$
+
+We may observe *q*<sup>⋆</sup> (out of *k*) genes overlapping with a
+gene set of interest by random sampling of *k* genes **without**
+replacement.
 
 Therefore, we can calculate the p-value:
 
-$P(q \\&gt; q^{\\\\star}\\\|n, m, k) = 1 - \\\\sum\\\_{q = 0}^{q^{\\\\star}} {m \\\\choose q } {n \\\\choose k-q} / {n+m \\\\choose k}$
+$$
+P(q \\\\&gt; q^{\\star}\\\|n, m, k) = 1 - \\sum\_{q = 0}^{q^{\\star}} {m \\choose q } {n \\choose k-q} / {n+m \\choose k}
+$$
 
 In `R`’s `phyper`, it’s as simple as:
 
@@ -890,18 +897,18 @@ kegg.fgsea %>%
     knitr::kable()
 ```
 
-| pathway                                          |      pval |      padj |   log2err |        ES |      NES | size | topGenes              |
-|:-------------------------------------------------|----------:|----------:|----------:|----------:|---------:|-----:|:----------------------|
-| KEGG\_RIBOSOME                                   | 0.0000000 | 0.0000001 | 0.8140358 | 0.6856763 | 1.975981 |   66 | RPL31, RPL23A, RPL15  |
-| KEGG\_CELL\_CYCLE                                | 0.0000553 | 0.0051414 | 0.5573322 | 0.5048543 | 1.504312 |  122 | CCND1, CDKN1C, MCM6   |
-| KEGG\_PROGESTERONE\_MEDIATED\_OOCYTE\_MATURATION | 0.0003532 | 0.0212945 | 0.4984931 | 0.5345082 | 1.560878 |   83 | KRAS, CCNB1, PIK3R1   |
-| KEGG\_AXON\_GUIDANCE                             | 0.0004717 | 0.0212945 | 0.4984931 | 0.4792875 | 1.430704 |  128 | ABLIM1, NCK2, ROBO2   |
-| KEGG\_DNA\_REPLICATION                           | 0.0005724 | 0.0212945 | 0.4772708 | 0.6193616 | 1.707362 |   34 | MCM6, MCM7, MCM2      |
-| KEGG\_CYSTEINE\_AND\_METHIONINE\_METABOLISM      | 0.0010769 | 0.0333834 | 0.4550599 | 0.6236481 | 1.706189 |   32 | CDO1, AMD1, DNMT3B    |
-| KEGG\_STEROID\_BIOSYNTHESIS                      | 0.0028304 | 0.0752068 | 0.4317077 | 0.6874421 | 1.799338 |   17 | CYP51A1, MSMO1, SQLE  |
-| KEGG\_GALACTOSE\_METABOLISM                      | 0.0038297 | 0.0811019 | 0.4317077 | 0.6098009 | 1.636884 |   25 | HK2, B4GALT2, B4GALT1 |
-| KEGG\_MAPK\_SIGNALING\_PATHWAY                   | 0.0040527 | 0.0811019 | 0.4070179 | 0.4140507 | 1.268182 |  259 | MEF2C, JUN, CACNB2    |
-| KEGG\_GAP\_JUNCTION                              | 0.0044989 | 0.0811019 | 0.4070179 | 0.4922953 | 1.436890 |   82 | TUBB2B, KRAS, PRKCA   |
+| pathway                                          |      pval |      padj |   log2err |        ES |      NES | size | topGenes             |
+|:-------------------------------------------------|----------:|----------:|----------:|----------:|---------:|-----:|:---------------------|
+| KEGG\_RIBOSOME                                   | 0.0000000 | 0.0000000 | 0.8266573 | 0.6856763 | 1.985503 |   66 | RPL31, RPL23A, RPL15 |
+| KEGG\_CELL\_CYCLE                                | 0.0000750 | 0.0069765 | 0.5384341 | 0.5048543 | 1.505751 |  122 | CCND1, CDKN1C, MCM6  |
+| KEGG\_PROGESTERONE\_MEDIATED\_OOCYTE\_MATURATION | 0.0001576 | 0.0097697 | 0.5188481 | 0.5345082 | 1.567830 |   83 | KRAS, CCNB1, PIK3R1  |
+| KEGG\_CYSTEINE\_AND\_METHIONINE\_METABOLISM      | 0.0004033 | 0.0177454 | 0.4984931 | 0.6236481 | 1.687826 |   32 | CDO1, AMD1, DNMT3B   |
+| KEGG\_DNA\_REPLICATION                           | 0.0005633 | 0.0177454 | 0.4772708 | 0.6193616 | 1.687254 |   34 | MCM6, MCM7, MCM2     |
+| KEGG\_AXON\_GUIDANCE                             | 0.0005724 | 0.0177454 | 0.4772708 | 0.4792875 | 1.431784 |  128 | ABLIM1, NCK2, ROBO2  |
+| KEGG\_GAP\_JUNCTION                              | 0.0019054 | 0.0506298 | 0.4550599 | 0.4922953 | 1.443031 |   82 | TUBB2B, KRAS, PRKCA  |
+| KEGG\_STEROID\_BIOSYNTHESIS                      | 0.0022384 | 0.0520428 | 0.4317077 | 0.6874421 | 1.742621 |   17 | CYP51A1, MSMO1, SQLE |
+| KEGG\_FRUCTOSE\_AND\_MANNOSE\_METABOLISM         | 0.0034963 | 0.0722573 | 0.4317077 | 0.5769388 | 1.571686 |   34 | HK2, PFKFB2, ALDOC   |
+| KEGG\_MAPK\_SIGNALING\_PATHWAY                   | 0.0050194 | 0.0788383 | 0.4070179 | 0.4140507 | 1.267528 |  259 | MEF2C, JUN, CACNB2   |
 
 We can do the same thing for the GWAS catalogue.
 
@@ -922,16 +929,16 @@ gwas.fgsea %>%
 
 | pathway                                     |    pval |     padj |   log2err |        ES |      NES | size | topGenes               |
 |:--------------------------------------------|--------:|---------:|----------:|----------:|---------:|-----:|:-----------------------|
-| Protein quantitative trait loci (liver)     | 0.0e+00 | 1.00e-07 | 0.8266573 | 0.4132858 | 1.304217 | 1217 | SGK1, KLHL1, INHBB     |
-| Cortical surface area                       | 0.0e+00 | 8.00e-07 | 0.7614608 | 0.4355612 | 1.362780 |  699 | MEF2C, SOX11, WWC1     |
-| Metabolite levels                           | 0.0e+00 | 1.10e-06 | 0.7477397 | 0.4095140 | 1.291264 | 1135 | SGK1, ATOH7, C14orf132 |
-| Schizophrenia                               | 0.0e+00 | 1.20e-06 | 0.7337620 | 0.4341164 | 1.358011 |  677 | MEF2C, TMTC1, LIMA1    |
-| Highest math class taken (MTAG)             | 1.0e-07 | 5.00e-06 | 0.7049757 | 0.4244059 | 1.329308 |  738 | MEF2C, SALL3, INHBB    |
-| Educational attainment (MTAG)               | 2.0e-07 | 8.90e-06 | 0.6901325 | 0.4094558 | 1.286636 |  900 | MEF2C, OSBPL3, SLC17A1 |
-| PR interval                                 | 2.0e-07 | 8.90e-06 | 0.6901325 | 0.5005374 | 1.525623 |  220 | BCL6, SYNE3, EPAS1     |
-| Educational attainment (years of education) | 6.0e-07 | 2.23e-05 | 0.6594444 | 0.4040904 | 1.271429 |  968 | MEF2C, SLC17A1, KCNJ3  |
-| Cortical thickness                          | 9.0e-07 | 3.16e-05 | 0.6594444 | 0.4313908 | 1.344707 |  519 | MEF2C, SOX11, ECE1     |
-| Systolic blood pressure                     | 1.3e-06 | 4.02e-05 | 0.6435518 | 0.3962629 | 1.249611 | 1168 | PFKFB2, LIMA1, AHRR    |
+| Protein quantitative trait loci (liver)     | 0.0e+00 | 3.00e-07 | 0.7881868 | 0.4132858 | 1.300670 | 1217 | SGK1, KLHL1, INHBB     |
+| Metabolite levels                           | 0.0e+00 | 6.00e-07 | 0.7614608 | 0.4095140 | 1.286601 | 1135 | SGK1, ATOH7, C14orf132 |
+| Schizophrenia                               | 0.0e+00 | 6.00e-07 | 0.7614608 | 0.4341164 | 1.351348 |  677 | MEF2C, TMTC1, LIMA1    |
+| Cortical surface area                       | 0.0e+00 | 6.00e-07 | 0.7614608 | 0.4355612 | 1.356896 |  699 | MEF2C, SOX11, WWC1     |
+| Highest math class taken (MTAG)             | 1.0e-07 | 6.30e-06 | 0.7049757 | 0.4244059 | 1.322553 |  738 | MEF2C, SALL3, INHBB    |
+| PR interval                                 | 2.0e-07 | 8.00e-06 | 0.6901325 | 0.5005374 | 1.515957 |  220 | BCL6, SYNE3, EPAS1     |
+| Educational attainment (MTAG)               | 2.0e-07 | 8.60e-06 | 0.6901325 | 0.4094558 | 1.282498 |  900 | MEF2C, OSBPL3, SLC17A1 |
+| Systolic blood pressure                     | 7.0e-07 | 2.63e-05 | 0.6594444 | 0.3962629 | 1.246351 | 1168 | PFKFB2, LIMA1, AHRR    |
+| Educational attainment (years of education) | 8.0e-07 | 2.63e-05 | 0.6594444 | 0.4040904 | 1.267718 |  968 | MEF2C, SLC17A1, KCNJ3  |
+| Refractive error                            | 1.2e-06 | 3.75e-05 | 0.6435518 | 0.4439863 | 1.368148 |  402 | GCKR, YBX3, CNGB3      |
 
 # Deliverables
 
