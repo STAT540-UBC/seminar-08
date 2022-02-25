@@ -408,11 +408,7 @@ analogy used in `R`’s `phyper` manual page.
 
 Under the null hypothesis:
 
-$$
-
-H\_{0} : q q^{}
-
-$$
+$$H_{0} : q \le q^{'}$$
 
 We may observe *q*<sup>⋆</sup> (out of *k*) genes overlapping with a
 gene set of interest by random sampling of *k* genes **without**
@@ -420,9 +416,7 @@ replacement.
 
 Therefore, we can calculate the p-value:
 
-$$
-P(q \\\\&gt; q^{\\star}\\\|n, m, k) = 1 - \\sum\_{q = 0}^{q^{\\star}} {m \\choose q } {n \\choose k-q} / {n+m \\choose k}
-$$
+$$P(q > q^{\star}|n, m, k) = 1 - \sum_{q = 0}^{q^{\star}} {m \choose q } {n \choose k-q} / {n+m \choose k}$$
 
 In `R`’s `phyper`, it’s as simple as:
 
