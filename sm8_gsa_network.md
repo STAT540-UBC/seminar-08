@@ -1,4 +1,4 @@
-STAT 540 - Seminar 7: Gene Set Enrichment Analysis
+STAT 540 - Seminar 8: Gene Set Enrichment Analysis
 ================
 Last update: 25 febrero, 2022 @ 11:03
 
