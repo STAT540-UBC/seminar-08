@@ -1,5 +1,5 @@
 ---
-title: "STAT 540 - Seminar 7: Gene Set Enrichment Analysis"
+title: "STAT 540 - Seminar 8: Gene Set Enrichment Analysis"
 date: "Last update: `r format(Sys.time(), '%d %B, %Y @ %H:%M')`"
 output:
   github_document
