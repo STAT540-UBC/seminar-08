@@ -25,7 +25,6 @@ This seminar was developed by Yongjin Park
 Please make sure you are able to load the following libraries before starting the seminar
 
 ```{r load, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
-
 library(tidyverse)         # our good friend
 library(patchwork)
 library(data.table)        # very handy with large tables
@@ -40,11 +39,17 @@ library(R.utils)           # need this to handle gzipped data
 library(msigdbr)           # curated source of gene sets and functions
 library(goseq)             # tool for GO term enrichment analysis 
 library(fgsea)             # tool for gene set enrichment analysis 
-## fgsea can also be installed using the corresponding GitHub repo:
+
+## `goseq` can be installed by bioconductor package manager:
+## if (!require("BiocManager", quietly = TRUE))
+##     install.packages("BiocManager")
+## BiocManager::install("Rsamtools")
+## BiocManager::install("goseq")
+
+## `fgsea` can also be installed using the corresponding GitHub repo:
 ## remotes::install_github("ctlab/fgsea")
 
 theme_set(theme_classic()) # classic theme ggplot
-
 ```
 
 *Remark on a technical issue*: You may not be able to install everything from the scratch depending on your machine/platform. If you're using `Ubuntu/Debian` Linux, you might want to install some dependent `R` packages via `apt-get`:
@@ -96,42 +101,47 @@ Outline:
 
 ## Run Differential Expression Gene analysis
 
-Let's use the same data used in [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm5_differential_expression_analysis.md). You can repeat the same code of `seminar-05`, but we copied that for completeness (only in [`Rmd`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd)).
+Let's use the same data used in [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm5_differential_expression_analysis.md). You can repeat the same code of `seminar-05`, but we copied that for completeness (only in [`Rmd`](https://github.com/STAT540-UBC/seminar-05/blob/main/sm7_gsa_network.Rmd)). 
 
 ```{r echo = FALSE, results = "hide"}
-eset.file <- "GSE4051.rds"
-run.if.needed(eset.file,{
-    eset <- GEOquery::getGEO("GSE4051", getGPL = FALSE)[[1]]
-    saveRDS(eset, file=eset.file)
-})
-eset <- readRDS(eset.file)
-# pull out just metadata for wildtype samples
-wt.meta.data <-
-    Biobase::pData(eset) %>%
-    mutate(sample_id = geo_accession) %>%
-    mutate(dev_stage =  case_when(
-               grepl("E16", title) ~ "E16",
-               grepl("P2", title) ~ "P2",
-               grepl("P6", title) ~ "P6",
-               grepl("P10", title) ~ "P10",
-               grepl("4 weeks", title) ~ "4_weeks"
-           )) %>%
-    mutate(genotype = case_when(
-               grepl("Nrl-ko", title) ~ "NrlKO",
-               grepl("wt", title) ~ "WT"
-           )) %>%
-    filter(genotype == "WT") %>%
-    dplyr::select(sample_id, genotype, dev_stage)
+deg.file <- "DEG.rds"
+run.if.needed(deg.file, {
+    eset.file <- "GSE4051.rds"
+    run.if.needed(eset.file,{
+        eset <- GEOquery::getGEO("GSE4051", getGPL = FALSE)[[1]]
+        saveRDS(eset, file=eset.file)
+    })
+    eset <- readRDS(eset.file)
+                                        # pull out just metadata for wildtype samples
+    wt.meta.data <-
+        Biobase::pData(eset) %>%
+        mutate(sample_id = geo_accession) %>%
+        mutate(dev_stage =  case_when(
+                   grepl("E16", title) ~ "E16",
+                   grepl("P2", title) ~ "P2",
+                   grepl("P6", title) ~ "P6",
+                   grepl("P10", title) ~ "P10",
+                   grepl("4 weeks", title) ~ "4_weeks"
+               )) %>%
+        mutate(genotype = case_when(
+                   grepl("Nrl-ko", title) ~ "NrlKO",
+                   grepl("wt", title) ~ "WT"
+               )) %>%
+        filter(genotype == "WT") %>%
+        dplyr::select(sample_id, genotype, dev_stage)
 
-# pull out just expression data for wildtype samples
-# makes use of the fact that the eset has column (sample) names
-wt.expr.mat <- Biobase::exprs(eset[, wt.meta.data$sample_id])
-design.mat <- model.matrix(~dev_stage, wt.meta.data)
-DEG.stat.dt <- limma::lmFit(wt.expr.mat, design.mat) %>%
-    limma::eBayes() %>%
-    limma::topTable(number=Inf) %>%
-    (function(x) { x %>% mutate(probe = rownames(x)) }) %>%
-    as.data.table
+                                        # pull out just expression data for wildtype samples
+                                        # makes use of the fact that the eset has column (sample) names
+    wt.expr.mat <- Biobase::exprs(eset[, wt.meta.data$sample_id])
+    design.mat <- model.matrix(~dev_stage, wt.meta.data)
+    DEG.stat.dt <- limma::lmFit(wt.expr.mat, design.mat) %>%
+        limma::eBayes() %>%
+        limma::topTable(number=Inf) %>%
+        (function(x) { x %>% mutate(probe = rownames(x)) }) %>%
+        as.data.table
+    saveRDS(DEG.stat.dt, deg.file)
+})
+DEG.stat.dt <- readRDS(deg.file)
 ```
 
 As a result, we have:
@@ -207,9 +217,9 @@ run.if.needed(probe.info.file, {
 ```{r}
 probe.info.map <-
     readRDS(probe.info.file) %>%          # read RDS
-    rename(probe = affy_mouse430_2) %>%   # Change the var. name
-    rename(chr = chromosome_name) %>%     # shorten the chr name
-    rename(gene_symbol = hgnc_symbol) %>% # Will use human gene symbol
+    dplyr::rename(probe = affy_mouse430_2) %>%   # Change the var. name
+    dplyr::rename(chr = chromosome_name) %>%     # shorten the chr name
+    dplyr::rename(gene_symbol = hgnc_symbol) %>% # Will use human gene symbol
     as.data.table()
 ```
 
@@ -247,7 +257,7 @@ When we match the probe names with the mouse and human gene symbols, we can dire
 ```{r}
 DEG.stat.dt %>%
     left_join(probe.info.map) %>%
-    select(probe, gene_symbol, P.Value, adj.P.Val) %>%
+    dplyr::select(probe, gene_symbol, P.Value, adj.P.Val) %>%
     na.omit() %>%
     head(10) %>%
     mutate(P.Value = num.sci(P.Value)) %>%
@@ -300,23 +310,23 @@ gwas.tidy.file <- "gwas_catalog_tidy.tsv.gz"
 ```
 
 ```{r download_full_gwas_catalog, include=FALSE}
-## It make take some time
-gwas.file <- "gwas_catalog_v1.0-associations_e105_r2022-02-02.tsv.gz"
-
-run.if.needed(gwas.file, {
-    url <- "https://www.ebi.ac.uk/gwas/api/search/downloads/full"
-    .file <- str_remove(gwas.file, ".gz$")
-    download.file(url, destfile = .file)
-    gzip(.file)
-    unlink(.file)
-})
-
 ## make it tidy by taking only what we need
 run.if.needed(gwas.tidy.file, {
 
+    ## It make take some time
+    gwas.file <- "gwas_catalog_v1.0-associations_e105_r2022-02-02.tsv.gz"
+
+    run.if.needed(gwas.file, {
+        url <- "https://www.ebi.ac.uk/gwas/api/search/downloads/full"
+        .file <- str_remove(gwas.file, ".gz$")
+        download.file(url, destfile = .file)
+        gzip(.file)
+        unlink(.file)
+    })
+
     .dt <-
         fread(gwas.file, sep="\t", quote="") %>%
-        select(`MAPPED_GENE`, `DISEASE/TRAIT`, `PVALUE_MLOG`)
+        dplyr::select(`MAPPED_GENE`, `DISEASE/TRAIT`, `PVALUE_MLOG`)
 
     ## remove redundant associations
     .dt <- .dt[order(.dt$PVALUE_MLOG, decreasing = TRUE),
@@ -353,7 +363,7 @@ For instance, we can take GWAS genes associated with Alzheimer's disease-related
 gwas.db[str_detect(`DISEASE/TRAIT`, "[Aa]lzheimer") & !is.na(gene_symbol)] %>%
     head() %>%
     mutate(p.value = num.sci(p.value)) %>%
-    select(`gs_name`, `gene_symbol`, `p.value`, `PVALUE_MLOG`) %>%
+    dplyr::select(`gs_name`, `gene_symbol`, `p.value`, `PVALUE_MLOG`) %>%
     knitr::kable()
 ```
 
@@ -412,19 +422,13 @@ What are the counts? Let's match gene counts with the black/white ball analogy u
 
 Under the null hypothesis:
 
-$$
-
-H_{0} : q \le q^{\star}
-
-$$
+$$H_{0} : q \le q^{\star}$$
 
 We may observe $q^{\star}$ (out of $k$) genes overlapping with a gene set of interest by random sampling of $k$ genes **without** replacement.
 
 Therefore, we can calculate the p-value:
 
-$$
-P(q \\> q^{\star}\|n, m, k) = 1 - \sum_{q = 0}^{q^{\star}} {m \choose q } {n \choose k-q} / {n+m \choose k}
-$$
+$$P(q > q^{\star}\|n, m, k) = 1 - \sum_{q = 0}^{q^{\star}} {m \choose q } {n \choose k-q} / {n+m \choose k}$$
 
 In `R`'s `phyper`, it's as simple as:
 
@@ -528,7 +532,7 @@ gene.level.stat <-
     DEG.stat.dt %>% 
     left_join(probe.info.map, by = "probe") %>%
     left_join(C2.human.db, by = "gene_symbol") %>%
-    select(gene_symbol, gs_name, P.Value, transcript_length) %>% 
+    dplyr::select(gene_symbol, gs_name, P.Value, transcript_length) %>% 
     filter(!is.na(gene_symbol)) %>% 
     as.data.table() %>%
     (function(.dt){
@@ -724,7 +728,7 @@ make.gs.lol <- function(.dt) {
 For instance, we can convert KEGG pathway `tibble` in this way:
 
 ```{r}
-KEGG.lol <- KEGG.human.db %>% select(gene_symbol, gs_name) %>% make.gs.lol()
+KEGG.lol <- KEGG.human.db %>% dplyr::select(gene_symbol, gs_name) %>% make.gs.lol()
 ```
 
 In case you were wondering about the shape, it looks like this:
@@ -773,14 +777,14 @@ Do we see the same results?
 kegg.fgsea %>%
     arrange(pval) %>%
     head(10) %>% 
-    select(-leadingEdge) %>% 
+    dplyr::select(-leadingEdge) %>% 
     knitr::kable()
 ```
 
 We can do the same thing for the GWAS catalogue.
 
 ```{r}
-gwas.lol <- gwas.db %>% select(gene_symbol, gs_name) %>% make.gs.lol()
+gwas.lol <- gwas.db %>% dplyr::select(gene_symbol, gs_name) %>% make.gs.lol()
 gwas.fgsea <- fgsea::fgsea(pathways = gwas.lol, stats = deg.scores, scoreType = "pos")
 
 gwas.fgsea[,
@@ -790,7 +794,7 @@ gwas.fgsea[,
 gwas.fgsea %>%
     arrange(pval) %>%
     head(10) %>% 
-    select(-leadingEdge) %>% 
+    dplyr::select(-leadingEdge) %>% 
     knitr::kable()
 ```
 
