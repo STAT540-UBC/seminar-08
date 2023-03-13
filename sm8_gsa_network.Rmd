@@ -805,6 +805,12 @@ gwas.fgsea %>%
 Run the discrete version of gene set analysis for the genes significantly associated with the interaction effect in [`seminar-05`](https://github.com/STAT540-UBC/seminar-05/blob/e042df71546221beb96ae44dbf252568c7797a93/sm5_differential_expression_analysis.Rmd#L706). Show your results as the top 10 KEGG pathways or GWAS disease/traits.
 
 -   Prepare input: get DEGs wich are associated with the interaction effect.
+```{r}
+#Loading  interaction DEGs obtained from seminar-05
+DEGInt.stat.dt <- readRDS("DEG_interaction.rds")
+head(DEGInt.stat.dt)
+```
+
 
 *Hint: Remember to join your results with the variable* `probe.info.map`
 
