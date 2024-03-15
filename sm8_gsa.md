@@ -1,6 +1,6 @@
 STAT 540 - Seminar 8: Gene Set Enrichment Analysis
 ================
-Last update: 25 February, 2024
+Last update: 15 March, 2024
 
 ## Attributions
 
@@ -142,6 +142,7 @@ head(DEG.stat.dt)
 ```
 
     ##         logFC  AveExpr         t      P.Value    adj.P.Val        B
+    ##         <num>    <num>     <num>        <num>        <num>    <num>
     ## 1:  5.2108065 8.733103  21.61189 4.201389e-22 1.894868e-17 37.11469
     ## 2:  3.9872758 9.323796  13.21908 2.524904e-15 5.693784e-11 24.07843
     ## 3:  0.8600933 8.268122  12.68818 8.501048e-15 1.178200e-10 22.98888
@@ -149,6 +150,7 @@ head(DEG.stat.dt)
     ## 5:  2.0794336 9.495435  12.47262 1.404916e-14 1.267262e-10 22.53556
     ## 6:  1.8772642 9.173111  12.38915 1.709168e-14 1.284753e-10 22.35830
     ##           probe
+    ##          <char>
     ## 1:   1450946_at
     ## 2:   1426288_at
     ## 3:   1442070_at
@@ -1047,16 +1049,16 @@ kegg.fgsea %>%
 
 | pathway                                  |      pval |      padj |   log2err |        ES |      NES | size | topGenes              |
 |:-----------------------------------------|----------:|----------:|----------:|----------:|---------:|-----:|:----------------------|
-| KEGG_CELL_ADHESION_MOLECULES_CAMS        | 0.0008014 | 0.1490604 | 0.4772708 | 0.5413632 | 1.330360 |  115 | CADM1, NFASC, ALCAM   |
-| KEGG_COLORECTAL_CANCER                   | 0.0019054 | 0.1772044 | 0.4550599 | 0.5802687 | 1.391740 |   62 | MAPK8, MAPK10, MLH1   |
-| KEGG_ERBB_SIGNALING_PATHWAY              | 0.0040527 | 0.2033202 | 0.4070179 | 0.5455817 | 1.324310 |   85 | MAPK8, PRKCB, MAPK10  |
-| KEGG_CHEMOKINE_SIGNALING_PATHWAY         | 0.0049451 | 0.2033202 | 0.4070179 | 0.4941380 | 1.230662 |  168 | GNGT2, GNB1, PRKCB    |
-| KEGG_GNRH_SIGNALING_PATHWAY              | 0.0054656 | 0.2033202 | 0.4070179 | 0.5399541 | 1.315607 |   94 | MAPK8, CACNA1D, PRKCB |
-| KEGG_TYPE_II_DIABETES_MELLITUS           | 0.0081455 | 0.2301157 | 0.3807304 | 0.5736458 | 1.351728 |   47 | SOCS3, MAPK8, CACNA1D |
-| KEGG_NOD_LIKE_RECEPTOR_SIGNALING_PATHWAY | 0.0088928 | 0.2301157 | 0.3807304 | 0.5754011 | 1.357284 |   48 | MAPK8, IL18, MAPK10   |
-| KEGG_INSULIN_SIGNALING_PATHWAY           | 0.0111346 | 0.2301157 | 0.3807304 | 0.4935387 | 1.219794 |  133 | SOCS3, MAPK8, MAPK10  |
-| KEGG_PANCREATIC_CANCER                   | 0.0111346 | 0.2301157 | 0.3807304 | 0.5373447 | 1.292578 |   69 | MAPK8, MAPK10, CDC42  |
-| KEGG_GAP_JUNCTION                        | 0.0181738 | 0.3380328 | 0.3524879 | 0.5257324 | 1.272211 |   82 | PDGFD, ADRB1, PRKCB   |
+| KEGG_CELL_ADHESION_MOLECULES_CAMS        | 0.0018316 | 0.1919105 | 0.4550599 | 0.5413632 | 1.326870 |  115 | CADM1, NFASC, ALCAM   |
+| KEGG_COLORECTAL_CANCER                   | 0.0029784 | 0.1919105 | 0.4317077 | 0.5802687 | 1.387844 |   62 | MAPK8, MAPK10, MLH1   |
+| KEGG_GNRH_SIGNALING_PATHWAY              | 0.0036443 | 0.1919105 | 0.4317077 | 0.5399541 | 1.319543 |   94 | MAPK8, CACNA1D, PRKCB |
+| KEGG_ERBB_SIGNALING_PATHWAY              | 0.0041271 | 0.1919105 | 0.4070179 | 0.5455817 | 1.327122 |   85 | MAPK8, PRKCB, MAPK10  |
+| KEGG_CHEMOKINE_SIGNALING_PATHWAY         | 0.0063579 | 0.2365149 | 0.4070179 | 0.4941380 | 1.226311 |  168 | GNGT2, GNB1, PRKCB    |
+| KEGG_NOD_LIKE_RECEPTOR_SIGNALING_PATHWAY | 0.0135259 | 0.3375660 | 0.3807304 | 0.5754011 | 1.356947 |   48 | MAPK8, IL18, MAPK10   |
+| KEGG_TYPE_II_DIABETES_MELLITUS           | 0.0141238 | 0.3375660 | 0.3807304 | 0.5736458 | 1.353223 |   47 | SOCS3, MAPK8, CACNA1D |
+| KEGG_PANCREATIC_CANCER                   | 0.0157707 | 0.3375660 | 0.3524879 | 0.5373447 | 1.294574 |   69 | MAPK8, MAPK10, CDC42  |
+| KEGG_GAP_JUNCTION                        | 0.0178734 | 0.3375660 | 0.3524879 | 0.5257324 | 1.277044 |   82 | PDGFD, ADRB1, PRKCB   |
+| KEGG_MELANOGENESIS                       | 0.0205769 | 0.3375660 | 0.3524879 | 0.5067796 | 1.239426 |   96 | PRKCB, WNT5A, ADCY2   |
 
 Note that [NOD-like receptors have been implicated in diabetic
 retinopathy](https://pubmed.ncbi.nlm.nih.gov/32019187/).
@@ -1080,16 +1082,16 @@ gwas.fgsea %>%
 
 | pathway                                     | pval | padj |   log2err |        ES |      NES | size | topGenes               |
 |:--------------------------------------------|-----:|-----:|----------:|----------:|---------:|-----:|:-----------------------|
-| Educational attainment                      |    0 |    0 | 1.2627399 | 0.4886054 | 1.261384 | 2506 | NRL, PITPNM3, TIA1     |
-| Height                                      |    0 |    0 | 1.0672100 | 0.4457961 | 1.155830 | 6732 | NRL, LRP4, RTKN2       |
-| Schizophrenia                               |    0 |    0 | 0.9214260 | 0.4879411 | 1.251733 | 1197 | LRP4, RTKN2, RP1       |
-| Smoking initiation                          |    0 |    0 | 0.8986712 | 0.4779175 | 1.228618 | 1469 | RPGRIP1, SYT1, DSCAML1 |
-| Refractive error                            |    0 |    0 | 0.8986712 | 0.5491901 | 1.388193 |  439 | GNGT2, FRMPD2, RPGRIP1 |
-| Educational attainment (MTAG)               |    0 |    0 | 0.8870750 | 0.4980063 | 1.274816 |  959 | NRL, CADM1, SYT1       |
-| Total PHF-tau (SNP x SNP interaction)       |    0 |    0 | 0.8634154 | 0.4721885 | 1.213935 | 1482 | RTKN2, PDGFD, CADM1    |
-| Highest math class taken (MTAG)             |    0 |    0 | 0.8513391 | 0.5055728 | 1.291977 |  783 | SYT1, RBPMS2, TFAP2B   |
-| Body mass index                             |    0 |    0 | 0.8266573 | 0.4559753 | 1.176504 | 2251 | LRP4, GDPD3, CADM1     |
-| Educational attainment (years of education) |    0 |    0 | 0.8140358 | 0.4846598 | 1.241117 | 1006 | NRL, SYT1, RBPMS2      |
+| Educational attainment                      |    0 |    0 | 1.2709130 | 0.4886054 | 1.261758 | 2506 | NRL, PITPNM3, TIA1     |
+| Height                                      |    0 |    0 | 1.0768682 | 0.4457961 | 1.154075 | 6732 | NRL, LRP4, RTKN2       |
+| Smoking initiation                          |    0 |    0 | 0.9214260 | 0.4779175 | 1.229387 | 1469 | RPGRIP1, SYT1, DSCAML1 |
+| Refractive error                            |    0 |    0 | 0.8986712 | 0.5491901 | 1.391270 |  439 | GNGT2, FRMPD2, RPGRIP1 |
+| Educational attainment (MTAG)               |    0 |    0 | 0.8986712 | 0.4980063 | 1.275362 |  959 | NRL, CADM1, SYT1       |
+| Schizophrenia                               |    0 |    0 | 0.8870750 | 0.4879411 | 1.252594 | 1197 | LRP4, RTKN2, RP1       |
+| Highest math class taken (MTAG)             |    0 |    0 | 0.8753251 | 0.5055728 | 1.291978 |  783 | SYT1, RBPMS2, TFAP2B   |
+| Total PHF-tau (SNP x SNP interaction)       |    0 |    0 | 0.8513391 | 0.4721885 | 1.214577 | 1482 | RTKN2, PDGFD, CADM1    |
+| Body mass index                             |    0 |    0 | 0.8266573 | 0.4559753 | 1.176171 | 2251 | LRP4, GDPD3, CADM1     |
+| Educational attainment (years of education) |    0 |    0 | 0.8266573 | 0.4846598 | 1.242088 | 1006 | NRL, SYT1, RBPMS2      |
 
 # Deliverables (2pt)
 
@@ -1111,6 +1113,7 @@ head(DEG.devstage.stat.dt)
 ```
 
     ##    dev_stageP02 dev_stageP06 dev_stageP10 dev_stageP28   AveExpr        F
+    ##           <num>        <num>        <num>        <num>     <num>    <num>
     ## 1:    0.3015231    0.2410171    0.8318539     3.630115  6.569338 244.7975
     ## 2:    0.6957130    3.5253342    5.1916076     5.531931 10.022867 188.2215
     ## 3:    0.4523816    2.1246120    3.5165781     4.915756  9.123810 154.4611
@@ -1118,6 +1121,7 @@ head(DEG.devstage.stat.dt)
     ## 5:    0.1712964    1.6956530    2.6238306     4.127897  8.797719 130.4764
     ## 6:    1.5396237    3.4399395    4.8976296     5.506886  9.200480 119.2817
     ##         P.Value    adj.P.Val      probe
+    ##           <num>        <num>     <char>
     ## 1: 1.985517e-25 8.954881e-21 1440645_at
     ## 2: 1.781377e-23 4.017094e-19 1421084_at
     ## 3: 5.056248e-22 7.601394e-18 1451590_at
@@ -1171,9 +1175,8 @@ pwf_stage <- goseq::nullp(deg.stage.vec,"hg19","ensGene")
 
 - Run `fgsea` or
   [`GSEABase`](https://bioconductor.org/packages/release/bioc/html/GSEABase.html)
-  for the same DEGs testing the interaction effect (0.5 pt). What will
-  be your choice of gene-level scores? You can also take into account
-  the sign of effect sizes.
+  for the same DEGs testing the effect of developmental stage (0.5 pt).
+  What will be your choice of gene-level scores?
 
 For reproducibility, please set the parameter `nproc = 1` from `fgsea()`
 function and don’t change the seed in the following chunk:
