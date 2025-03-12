@@ -50,6 +50,9 @@ if(!require("msigdbdf")){
 ## BiocManager::install("goseq")
 ## BiocManager::install("fgsea")
 
+## `goseq`'s another hidden dependency
+## BiocManager::install("org.Hs.eg.db")
+
 theme_set(theme_bw()) # classic theme ggplot
 ```
 
@@ -755,6 +758,7 @@ deg.scores <- DEG.stat.dt %>%
   # Here .SD is a reference to the data itself. So in this case we are
   # taking the most significant result from every gene symbol
     (function(.dt) { .dt[, head(.SD,1), by = .(gene_symbol)] }) %>%
+    filter(nchar(gene_symbol) > 0) %>% 
   # Convert the adjusted pvalue to a score
     mutate(v = -log10(P.Value)) %>% 
   # Reduce the data frame to a named vector of scores
