@@ -40,6 +40,10 @@ library(msigdbr)           # curated source of gene sets and functions
 library(goseq)             # tool for GO term enrichment analysis 
 library(fgsea)             # tool for gene set enrichment analysis 
 
+if(!require("msigdbdf")){
+    install.packages("msigdbdf", repos = 'https://igordot.r-universe.dev')
+}
+
 ## `goseq` and `fgseq` can be installed by bioconductor package manager:
 ## if (!require("BiocManager", quietly = TRUE))
 ##     install.packages("BiocManager")
@@ -60,6 +64,15 @@ sudo apt install r-bioc-genelendatabase
 ```
 
 *Remark on a technical issue*: You need `C++` compiler installed in your machine if you want to use `fgsea` with best performance.
+
+*Remark: `MacOs` users using `clang` would need to add the following lines in `$HOME/.R/Makevars` if your `goseq` installation failed.*
+
+```
+CFLAGS += -Wno-implicit-function-declaration
+CXXFLAGS += -Wno-implicit-function-declaration
+PKG_CXXFLAGS += $(CXXFLAGS)
+PKG_CPPFLAGS += $(CPPFLAGS)
+```
 
 ```{r results='hide', message=FALSE, warning=FALSE, echo=FALSE}
 ###########################
@@ -301,7 +314,7 @@ We will focus on the [Kyoto Encyclopedia of Genes and Genomes (KEGG)](https://ww
 ```{r}
 KEGG.human.db <- msigdbr::msigdbr(species = "human",
                                   category = "C2",
-                                  subcategory = "CP:KEGG")
+                                  subcategory = "CP:KEGG_LEGACY")
 ```
 
 ## GWAS catalog
