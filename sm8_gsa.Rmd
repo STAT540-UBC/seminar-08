@@ -315,9 +315,9 @@ knitr::kable(msigdbr::msigdbr_collections())
 We will focus on the [Kyoto Encyclopedia of Genes and Genomes (KEGG)](https://www.genome.jp/kegg/) pathways named by human gene symbols:
 
 ```{r}
-KEGG.human.db <- msigdbr::msigdbr(species = "human",
+KEGG.human.db <- msigdbr(species = "human",
                                   category = "C2",
-                                  subcategory = "CP:KEGG_LEGACY")
+                                  subcategory = "CP:KEGG")
 ```
 
 ## GWAS catalog

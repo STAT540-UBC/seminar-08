@@ -1,6 +1,6 @@
 STAT 540 - Seminar 8: Gene Set Enrichment Analysis
 ================
-Last update: 15 March, 2024
+Last update: 12 March, 2025
 
 ## Attributions
 
@@ -36,11 +36,18 @@ library(msigdbr)           # curated source of gene sets and functions
 library(goseq)             # tool for GO term enrichment analysis 
 library(fgsea)             # tool for gene set enrichment analysis 
 
+if(!require("msigdbdf")){
+    install.packages("msigdbdf", repos = 'https://igordot.r-universe.dev')
+}
+
 ## `goseq` and `fgseq` can be installed by bioconductor package manager:
 ## if (!require("BiocManager", quietly = TRUE))
 ##     install.packages("BiocManager")
 ## BiocManager::install("goseq")
 ## BiocManager::install("fgsea")
+
+## `goseq`'s another hidden dependency
+## BiocManager::install("org.Hs.eg.db")
 
 theme_set(theme_bw()) # classic theme ggplot
 ```
@@ -60,6 +67,14 @@ sudo apt install r-bioc-genelendatabase
 
 *Remark on a technical issue*: You need `C++` compiler installed in your
 machine if you want to use `fgsea` with best performance.
+
+*Remark: `MacOs` users using `clang` would need to add the following
+lines in `$HOME/.R/Makevars` if your `goseq` installation failed.*
+
+    CFLAGS += -Wno-implicit-function-declaration
+    CXXFLAGS += -Wno-implicit-function-declaration
+    PKG_CXXFLAGS += $(CXXFLAGS)
+    PKG_CPPFLAGS += $(CPPFLAGS)
 
 Outline:
 
@@ -247,14 +262,14 @@ probe.info.map %>%
     knitr::kable()
 ```
 
-| probe        | mgi_symbol | gene_symbol | ensembl_gene_id | chr        | transcription_start_site | transcript_length |
-|:-------------|:-----------|:------------|:----------------|:-----------|-------------------------:|------------------:|
-| 1426088_at   | mt-Nd5     | MT-ND5      | ENSG00000198786 | MT         |                    12337 |              1812 |
-| 1417629_at   | Prodh      |             | ENSG00000277196 | KI270734.1 |                   161852 |              2405 |
-| 1417629_at   | Prodh      |             | ENSG00000277196 | KI270734.1 |                   161750 |              1990 |
-| 1452434_s_at | Dgcr6      |             | ENSG00000278817 | KI270734.1 |                   131494 |              1213 |
-| 1428753_a_at | Dgcr6      |             | ENSG00000278817 | KI270734.1 |                   131494 |              1213 |
-| 1417253_at   | Frg1       |             | ENSG00000273748 | GL000219.1 |                    83311 |               372 |
+| probe | mgi_symbol | gene_symbol | ensembl_gene_id | chr | transcription_start_site | transcript_length |
+|:---|:---|:---|:---|:---|---:|---:|
+| 1426088_at | mt-Nd5 | MT-ND5 | ENSG00000198786 | MT | 12337 | 1812 |
+| 1417629_at | Prodh |  | ENSG00000277196 | KI270734.1 | 161852 | 2405 |
+| 1417629_at | Prodh |  | ENSG00000277196 | KI270734.1 | 161750 | 1990 |
+| 1452434_s_at | Dgcr6 |  | ENSG00000278817 | KI270734.1 | 131494 | 1213 |
+| 1428753_a_at | Dgcr6 |  | ENSG00000278817 | KI270734.1 | 131494 | 1213 |
+| 1417253_at | Frg1 |  | ENSG00000273748 | GL000219.1 | 83311 | 372 |
 
 We could have multiple transcripts within a gene, so let’s take the
 longest one:
@@ -275,14 +290,14 @@ probe.info.map %>%
     knitr::kable()
 ```
 
-| probe        | gene_symbol | chr | mgi_symbol | ensembl_gene_id | transcription_start_site | transcript_length |
-|:-------------|:------------|:----|:-----------|:----------------|-------------------------:|------------------:|
-| 1444083_at   | TTN         | 2   | Ttn        | ENSG00000155657 |                178807423 |            109224 |
-| 1427446_s_at | TTN         | 2   | Ttn        | ENSG00000155657 |                178807423 |            109224 |
-| 1444638_at   | TTN         | 2   | Ttn        | ENSG00000155657 |                178807423 |            109224 |
-| 1427445_a_at | TTN         | 2   | Ttn        | ENSG00000155657 |                178807423 |            109224 |
-| 1431928_at   | TTN         | 2   | Ttn        | ENSG00000155657 |                178807423 |            109224 |
-| 1443001_at   | TTN         | 2   | Ttn        | ENSG00000155657 |                178807423 |            109224 |
+| probe | gene_symbol | chr | mgi_symbol | ensembl_gene_id | transcription_start_site | transcript_length |
+|:---|:---|:---|:---|:---|---:|---:|
+| 1444083_at | TTN | 2 | Ttn | ENSG00000155657 | 178807423 | 109224 |
+| 1427446_s_at | TTN | 2 | Ttn | ENSG00000155657 | 178807423 | 109224 |
+| 1444638_at | TTN | 2 | Ttn | ENSG00000155657 | 178807423 | 109224 |
+| 1427445_a_at | TTN | 2 | Ttn | ENSG00000155657 | 178807423 | 109224 |
+| 1431928_at | TTN | 2 | Ttn | ENSG00000155657 | 178807423 | 109224 |
+| 1443001_at | TTN | 2 | Ttn | ENSG00000155657 | 178807423 | 109224 |
 
 When we match the probe names with the mouse and human gene symbols, we
 can directly use this DEG table for downstream enrichment analysis of
@@ -358,28 +373,28 @@ There are many species:
 knitr::kable(msigdbr::msigdbr_species())
 ```
 
-| species_name                    | species_common_name                                                     |
-|:--------------------------------|:------------------------------------------------------------------------|
-| Anolis carolinensis             | Carolina anole, green anole                                             |
-| Bos taurus                      | bovine, cattle, cow, dairy cow, domestic cattle, domestic cow, ox, oxen |
-| Caenorhabditis elegans          | NA                                                                      |
-| Canis lupus familiaris          | dog, dogs                                                               |
-| Danio rerio                     | leopard danio, zebra danio, zebra fish, zebrafish                       |
-| Drosophila melanogaster         | fruit fly                                                               |
-| Equus caballus                  | domestic horse, equine, horse                                           |
-| Felis catus                     | cat, cats, domestic cat                                                 |
-| Gallus gallus                   | bantam, chicken, chickens, Gallus domesticus                            |
-| Homo sapiens                    | human                                                                   |
-| Macaca mulatta                  | rhesus macaque, rhesus macaques, Rhesus monkey, rhesus monkeys          |
-| Monodelphis domestica           | gray short-tailed opossum                                               |
-| Mus musculus                    | house mouse, mouse                                                      |
-| Ornithorhynchus anatinus        | duck-billed platypus, duckbill platypus, platypus                       |
-| Pan troglodytes                 | chimpanzee                                                              |
-| Rattus norvegicus               | brown rat, Norway rat, rat, rats                                        |
-| Saccharomyces cerevisiae        | baker’s yeast, brewer’s yeast, S. cerevisiae                            |
-| Schizosaccharomyces pombe 972h- | NA                                                                      |
-| Sus scrofa                      | pig, pigs, swine, wild boar                                             |
-| Xenopus tropicalis              | tropical clawed frog, western clawed frog                               |
+| species_name | species_common_name |
+|:---|:---|
+| Anolis carolinensis | Carolina anole, green anole |
+| Bos taurus | bovine, cattle, cow, dairy cow, domestic cattle, domestic cow, ox, oxen |
+| Caenorhabditis elegans | NA |
+| Canis lupus familiaris | dog, dogs |
+| Danio rerio | leopard danio, zebra danio, zebra fish, zebrafish |
+| Drosophila melanogaster | fruit fly |
+| Equus caballus | domestic horse, equine, horse |
+| Felis catus | cat, cats, domestic cat |
+| Gallus gallus | bantam, chicken, chickens, Gallus domesticus |
+| Homo sapiens | human |
+| Macaca mulatta | rhesus macaque, rhesus macaques, Rhesus monkey, rhesus monkeys |
+| Monodelphis domestica | gray short-tailed opossum |
+| Mus musculus | house mouse, mouse |
+| Ornithorhynchus anatinus | duck-billed platypus, duckbill platypus, platypus |
+| Pan troglodytes | chimpanzee |
+| Rattus norvegicus | brown rat, Norway rat, rat, rats |
+| Saccharomyces cerevisiae | baker’s yeast, brewer’s yeast, S. cerevisiae |
+| Schizosaccharomyces pombe 972h- | NA |
+| Sus scrofa | pig, pigs, swine, wild boar |
+| Xenopus tropicalis | tropical clawed frog, western clawed frog |
 
 There are many collections available:
 
@@ -418,7 +433,7 @@ We will focus on the [Kyoto Encyclopedia of Genes and Genomes
 symbols:
 
 ``` r
-KEGG.human.db <- msigdbr::msigdbr(species = "human",
+KEGG.human.db <- msigdbr(species = "human",
                                   category = "C2",
                                   subcategory = "CP:KEGG")
 ```
@@ -494,14 +509,14 @@ gwas.db[str_detect(`DISEASE/TRAIT`, "[Aa]lzheimer") & !is.na(gene_symbol)] %>%
     knitr::kable()
 ```
 
-| gs_name                                                                     | gene_symbol | p.value | PVALUE_MLOG |
-|:----------------------------------------------------------------------------|:------------|:--------|------------:|
-| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | APOC1       | 0e+00   |    672.6990 |
-| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | APOC1P1     | 0e+00   |    672.6990 |
-| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | BCAM        | 7e-192  |    191.1549 |
-| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | TOMM40      | 3e-156  |    155.5229 |
-| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | APOE        | 3e-156  |    155.5229 |
-| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | BCL3        | 3e-117  |    116.5229 |
+| gs_name | gene_symbol | p.value | PVALUE_MLOG |
+|:---|:---|:---|---:|
+| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | APOC1 | 0e+00 | 672.6990 |
+| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | APOC1P1 | 0e+00 | 672.6990 |
+| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | BCAM | 7e-192 | 191.1549 |
+| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | TOMM40 | 3e-156 | 155.5229 |
+| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | APOE | 3e-156 | 155.5229 |
+| Alzheimer’s disease polygenic risk score (upper quantile vs lower quantile) | BCL3 | 3e-117 | 116.5229 |
 
 - *Note*: `PVALUE_MLOG`: -log10(p-value).
 
@@ -636,18 +651,18 @@ hyper.kegg.dt <- run.hyper.test(deg.dt,
                                 cutoff=1e-2)
 ```
 
-| gs_name                                                       |   m |   q |    n |   k |     p.val |
-|:--------------------------------------------------------------|----:|----:|-----:|----:|----------:|
-| KEGG_CELL_ADHESION_MOLECULES_CAMS                             | 115 |  17 | 4355 | 287 | 0.0003221 |
-| KEGG_TIGHT_JUNCTION                                           | 120 |  16 | 4350 | 287 | 0.0015023 |
-| KEGG_GAP_JUNCTION                                             |  82 |  12 | 4388 | 287 | 0.0019258 |
-| KEGG_GLYCOSPHINGOLIPID_BIOSYNTHESIS_LACTO_AND_NEOLACTO_SERIES |  22 |   5 | 4448 | 287 | 0.0020635 |
-| KEGG_GNRH_SIGNALING_PATHWAY                                   |  94 |  13 | 4376 | 287 | 0.0024039 |
-| KEGG_TYPE_II_DIABETES_MELLITUS                                |  47 |   8 | 4423 | 287 | 0.0025532 |
-| KEGG_FRUCTOSE_AND_MANNOSE_METABOLISM                          |  34 |   6 | 4436 | 287 | 0.0049997 |
-| KEGG_COLORECTAL_CANCER                                        |  62 |   9 | 4408 | 287 | 0.0055388 |
-| KEGG_MELANOGENESIS                                            |  96 |  12 | 4374 | 287 | 0.0077607 |
-| KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_KERATAN_SULFATE           |  14 |   3 | 4456 | 287 | 0.0099647 |
+| gs_name | m | q | n | k | p.val |
+|:---|---:|---:|---:|---:|---:|
+| KEGG_CELL_ADHESION_MOLECULES_CAMS | 115 | 17 | 4355 | 287 | 0.0003221 |
+| KEGG_TIGHT_JUNCTION | 120 | 16 | 4350 | 287 | 0.0015023 |
+| KEGG_GAP_JUNCTION | 82 | 12 | 4388 | 287 | 0.0019258 |
+| KEGG_GLYCOSPHINGOLIPID_BIOSYNTHESIS_LACTO_AND_NEOLACTO_SERIES | 22 | 5 | 4448 | 287 | 0.0020635 |
+| KEGG_GNRH_SIGNALING_PATHWAY | 94 | 13 | 4376 | 287 | 0.0024039 |
+| KEGG_TYPE_II_DIABETES_MELLITUS | 47 | 8 | 4423 | 287 | 0.0025532 |
+| KEGG_FRUCTOSE_AND_MANNOSE_METABOLISM | 34 | 6 | 4436 | 287 | 0.0049997 |
+| KEGG_COLORECTAL_CANCER | 62 | 9 | 4408 | 287 | 0.0055388 |
+| KEGG_MELANOGENESIS | 96 | 12 | 4374 | 287 | 0.0077607 |
+| KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_KERATAN_SULFATE | 14 | 3 | 4456 | 287 | 0.0099647 |
 
 #### GWAS catalogue enrichment
 
@@ -657,18 +672,18 @@ hyper.gwas.dt <- run.hyper.test(deg.dt,
                                 cutoff=1e-2)
 ```
 
-| gs_name                                                        |    m |   q |     n |   k | p.val |
-|:---------------------------------------------------------------|-----:|----:|------:|----:|------:|
-| Educational attainment                                         | 2506 | 263 | 11439 | 896 |     0 |
-| Personality traits or cognitive traits (multivariate analysis) |  359 |  59 | 13586 | 896 |     0 |
-| Refractive error                                               |  439 |  67 | 13506 | 896 |     0 |
-| Educational attainment (MTAG)                                  |  959 | 114 | 12986 | 896 |     0 |
-| Body mass index                                                | 2251 | 214 | 11694 | 896 |     0 |
-| Smoking initiation                                             | 1469 | 151 | 12476 | 896 |     0 |
-| Schizophrenia                                                  | 1197 | 129 | 12748 | 896 |     0 |
-| Total PHF-tau (SNP x SNP interaction)                          | 1482 | 152 | 12463 | 896 |     0 |
-| Educational attainment (years of education)                    | 1006 | 113 | 12939 | 896 |     0 |
-| Self-reported math ability (MTAG)                              |  550 |  72 | 13395 | 896 |     0 |
+| gs_name | m | q | n | k | p.val |
+|:---|---:|---:|---:|---:|---:|
+| Educational attainment | 2506 | 263 | 11439 | 896 | 0 |
+| Personality traits or cognitive traits (multivariate analysis) | 359 | 59 | 13586 | 896 | 0 |
+| Refractive error | 439 | 67 | 13506 | 896 | 0 |
+| Educational attainment (MTAG) | 959 | 114 | 12986 | 896 | 0 |
+| Body mass index | 2251 | 214 | 11694 | 896 | 0 |
+| Smoking initiation | 1469 | 151 | 12476 | 896 | 0 |
+| Schizophrenia | 1197 | 129 | 12748 | 896 | 0 |
+| Total PHF-tau (SNP x SNP interaction) | 1482 | 152 | 12463 | 896 | 0 |
+| Educational attainment (years of education) | 1006 | 113 | 12939 | 896 | 0 |
+| Self-reported math ability (MTAG) | 550 | 72 | 13395 | 896 | 0 |
 
 For the DEGs associated with Nrl knockout, some of them make sense! For
 example, keratan sulfate seems to be important for the cornea, and
@@ -851,18 +866,18 @@ head(goseq.results, 10) %>%
     knitr::kable()
 ```
 
-|       | category     | over_represented_pvalue | under_represented_pvalue | numDEInCat | numInCat | term                                    | ontology |
-|:------|:-------------|:------------------------|-------------------------:|-----------:|---------:|:----------------------------------------|:---------|
-| 10783 | <GO:0043005> | 1.9e-15                 |                        1 |        157 |     1250 | neuron projection                       | CC       |
-| 10778 | <GO:0042995> | 9.9e-13                 |                        1 |        226 |     2221 | cell projection                         | CC       |
-| 18284 | <GO:0120025> | 6.3e-12                 |                        1 |        214 |     2115 | plasma membrane bounded cell projection | CC       |
-| 553   | <GO:0001750> | 1.4e-11                 |                        1 |         26 |       87 | photoreceptor outer segment             | CC       |
-| 11579 | <GO:0045202> | 1.7e-11                 |                        1 |        154 |     1385 | synapse                                 | CC       |
-| 3681  | <GO:0007399> | 2.2e-11                 |                        1 |        235 |     2387 | nervous system development              | BP       |
-| 17177 | <GO:0097060> | 2.4e-11                 |                        1 |         63 |      378 | synaptic membrane                       | CC       |
-| 3742  | <GO:0007602> | 2.0e-10                 |                        1 |         17 |       44 | phototransduction                       | BP       |
-| 4458  | <GO:0009583> | 2.9e-10                 |                        1 |         20 |       61 | detection of light stimulus             | BP       |
-| 12911 | <GO:0048812> | 3.2e-10                 |                        1 |         85 |      615 | neuron projection morphogenesis         | BP       |
+|  | category | over_represented_pvalue | under_represented_pvalue | numDEInCat | numInCat | term | ontology |
+|:---|:---|:---|---:|---:|---:|:---|:---|
+| 10603 | <GO:0043005> | 2.9e-15 | 1 | 159 | 1278 | neuron projection | CC |
+| 11359 | <GO:0045202> | 1.6e-14 | 1 | 182 | 1590 | synapse | CC |
+| 3628 | <GO:0007399> | 1.5e-13 | 1 | 253 | 2499 | nervous system development | BP |
+| 10598 | <GO:0042995> | 1.8e-12 | 1 | 229 | 2274 | cell projection | CC |
+| 10361 | <GO:0042462> | 2.5e-12 | 1 | 17 | 34 | eye photoreceptor cell development | BP |
+| 17915 | <GO:0120025> | 8.4e-12 | 1 | 217 | 2162 | plasma membrane bounded cell projection | CC |
+| 6961 | <GO:0030054> | 1.8e-11 | 1 | 226 | 2269 | cell junction | CC |
+| 542 | <GO:0001750> | 1.9e-11 | 1 | 26 | 88 | photoreceptor outer segment | CC |
+| 16829 | <GO:0097060> | 2.4e-11 | 1 | 69 | 435 | synaptic membrane | CC |
+| 12605 | <GO:0048666> | 4.8e-11 | 1 | 133 | 1120 | neuron development | BP |
 
 How about other custom gene sets, e.g., KEGG pathways or all the
 canonical pathways? Let’s take a look at the following excerpt in the
@@ -905,18 +920,18 @@ head(canonical.goseq.results, 10) %>%
     knitr::kable()
 ```
 
-|      | category                                             | over_represented_pvalue | under_represented_pvalue | numDEInCat | numInCat |
-|:-----|:-----------------------------------------------------|:------------------------|-------------------------:|-----------:|---------:|
-| 1262 | GOBERT_OLIGODENDROCYTE_DIFFERENTIATION_DN            | 1.1e-10                 |                1.0000000 |        125 |     1054 |
-| 3138 | REACTOME_ACTIVATION_OF_THE_PHOTOTRANSDUCTION_CASCADE | 6.9e-10                 |                1.0000000 |          9 |       11 |
-| 2087 | LEE_TARGETS_OF_PTCH1_AND_SUFU_DN                     | 5.8e-09                 |                1.0000000 |         22 |       82 |
-| 483  | BLALOCK_ALZHEIMERS_DISEASE_DN                        | 1.1e-08                 |                1.0000000 |        118 |     1186 |
-| 3953 | REACTOME_NEURONAL_SYSTEM                             | 7.7e-08                 |                1.0000000 |         54 |      382 |
-| 2964 | PID_RHODOPSIN_PATHWAY                                | 1.0e-07                 |                1.0000000 |         10 |       21 |
-| 2841 | PID_CONE_PATHWAY                                     | 3.4e-07                 |                1.0000000 |          9 |       19 |
-| 5302 | VERHAAK_GLIOBLASTOMA_PRONEURAL                       | 4.4e-07                 |                0.9999999 |         31 |      171 |
-| 142  | BENPORATH_ES_WITH_H3K27ME3                           | 6.8e-07                 |                0.9999998 |        103 |     1005 |
-| 2315 | MARTORIATI_MDM4_TARGETS_NEUROEPITHELIUM_DN           | 7.0e-07                 |                0.9999998 |         28 |      157 |
+|  | category | over_represented_pvalue | under_represented_pvalue | numDEInCat | numInCat |
+|:---|:---|:---|---:|---:|---:|
+| 1262 | GOBERT_OLIGODENDROCYTE_DIFFERENTIATION_DN | 1.1e-10 | 1.0000000 | 125 | 1054 |
+| 3138 | REACTOME_ACTIVATION_OF_THE_PHOTOTRANSDUCTION_CASCADE | 6.9e-10 | 1.0000000 | 9 | 11 |
+| 2087 | LEE_TARGETS_OF_PTCH1_AND_SUFU_DN | 5.8e-09 | 1.0000000 | 22 | 82 |
+| 483 | BLALOCK_ALZHEIMERS_DISEASE_DN | 1.1e-08 | 1.0000000 | 118 | 1186 |
+| 3953 | REACTOME_NEURONAL_SYSTEM | 7.7e-08 | 1.0000000 | 54 | 382 |
+| 2964 | PID_RHODOPSIN_PATHWAY | 1.0e-07 | 1.0000000 | 10 | 21 |
+| 2841 | PID_CONE_PATHWAY | 3.4e-07 | 1.0000000 | 9 | 19 |
+| 5302 | VERHAAK_GLIOBLASTOMA_PRONEURAL | 4.4e-07 | 0.9999999 | 31 | 171 |
+| 142 | BENPORATH_ES_WITH_H3K27ME3 | 6.8e-07 | 0.9999998 | 103 | 1005 |
+| 2315 | MARTORIATI_MDM4_TARGETS_NEUROEPITHELIUM_DN | 7.0e-07 | 0.9999998 | 28 | 157 |
 
 Do you see any pathways or GO categories here that look like they could
 be retina-related?
@@ -1014,6 +1029,7 @@ deg.scores <- DEG.stat.dt %>%
   # Here .SD is a reference to the data itself. So in this case we are
   # taking the most significant result from every gene symbol
     (function(.dt) { .dt[, head(.SD,1), by = .(gene_symbol)] }) %>%
+    filter(nchar(gene_symbol) > 0) %>% 
   # Convert the adjusted pvalue to a score
     mutate(v = -log10(P.Value)) %>% 
   # Reduce the data frame to a named vector of scores
@@ -1047,18 +1063,18 @@ kegg.fgsea %>%
     knitr::kable()
 ```
 
-| pathway                                  |      pval |      padj |   log2err |        ES |      NES | size | topGenes              |
-|:-----------------------------------------|----------:|----------:|----------:|----------:|---------:|-----:|:----------------------|
-| KEGG_CELL_ADHESION_MOLECULES_CAMS        | 0.0018316 | 0.1919105 | 0.4550599 | 0.5413632 | 1.326870 |  115 | CADM1, NFASC, ALCAM   |
-| KEGG_COLORECTAL_CANCER                   | 0.0029784 | 0.1919105 | 0.4317077 | 0.5802687 | 1.387844 |   62 | MAPK8, MAPK10, MLH1   |
-| KEGG_GNRH_SIGNALING_PATHWAY              | 0.0036443 | 0.1919105 | 0.4317077 | 0.5399541 | 1.319543 |   94 | MAPK8, CACNA1D, PRKCB |
-| KEGG_ERBB_SIGNALING_PATHWAY              | 0.0041271 | 0.1919105 | 0.4070179 | 0.5455817 | 1.327122 |   85 | MAPK8, PRKCB, MAPK10  |
-| KEGG_CHEMOKINE_SIGNALING_PATHWAY         | 0.0063579 | 0.2365149 | 0.4070179 | 0.4941380 | 1.226311 |  168 | GNGT2, GNB1, PRKCB    |
-| KEGG_NOD_LIKE_RECEPTOR_SIGNALING_PATHWAY | 0.0135259 | 0.3375660 | 0.3807304 | 0.5754011 | 1.356947 |   48 | MAPK8, IL18, MAPK10   |
-| KEGG_TYPE_II_DIABETES_MELLITUS           | 0.0141238 | 0.3375660 | 0.3807304 | 0.5736458 | 1.353223 |   47 | SOCS3, MAPK8, CACNA1D |
-| KEGG_PANCREATIC_CANCER                   | 0.0157707 | 0.3375660 | 0.3524879 | 0.5373447 | 1.294574 |   69 | MAPK8, MAPK10, CDC42  |
-| KEGG_GAP_JUNCTION                        | 0.0178734 | 0.3375660 | 0.3524879 | 0.5257324 | 1.277044 |   82 | PDGFD, ADRB1, PRKCB   |
-| KEGG_MELANOGENESIS                       | 0.0205769 | 0.3375660 | 0.3524879 | 0.5067796 | 1.239426 |   96 | PRKCB, WNT5A, ADCY2   |
+| pathway | pval | padj | log2err | ES | NES | size | topGenes |
+|:---|---:|---:|---:|---:|---:|---:|:---|
+| KEGG_CELL_ADHESION_MOLECULES_CAMS | 0.0015187 | 0.1566443 | 0.4550599 | 0.5414163 | 1.322015 | 115 | CADM1, NFASC, ALCAM |
+| KEGG_COLORECTAL_CANCER | 0.0016843 | 0.1566443 | 0.4550599 | 0.5803129 | 1.377445 | 62 | MAPK8, MAPK10, MLH1 |
+| KEGG_GNRH_SIGNALING_PATHWAY | 0.0030893 | 0.1915395 | 0.4317077 | 0.5400055 | 1.307749 | 94 | MAPK8, CACNA1D, PRKCB |
+| KEGG_ERBB_SIGNALING_PATHWAY | 0.0062836 | 0.2921858 | 0.4070179 | 0.5456278 | 1.317463 | 85 | MAPK8, PRKCB, MAPK10 |
+| KEGG_CHEMOKINE_SIGNALING_PATHWAY | 0.0081455 | 0.3030134 | 0.3807304 | 0.4941825 | 1.224291 | 168 | GNGT2, GNB1, PRKCB |
+| KEGG_NOD_LIKE_RECEPTOR_SIGNALING_PATHWAY | 0.0108357 | 0.3353270 | 0.3807304 | 0.5754488 | 1.345775 | 48 | MAPK8, IL18, MAPK10 |
+| KEGG_GAP_JUNCTION | 0.0142732 | 0.3353270 | 0.3807304 | 0.5257837 | 1.267495 | 82 | PDGFD, ADRB1, PRKCB |
+| KEGG_TYPE_II_DIABETES_MELLITUS | 0.0144227 | 0.3353270 | 0.3807304 | 0.5736951 | 1.341603 | 47 | SOCS3, MAPK8, CACNA1D |
+| KEGG_PANCREATIC_CANCER | 0.0172726 | 0.3482739 | 0.3524879 | 0.5373890 | 1.284228 | 69 | MAPK8, MAPK10, CDC42 |
+| KEGG_MELANOGENESIS | 0.0244819 | 0.3482739 | 0.3524879 | 0.5068263 | 1.227396 | 96 | PRKCB, WNT5A, ADCY2 |
 
 Note that [NOD-like receptors have been implicated in diabetic
 retinopathy](https://pubmed.ncbi.nlm.nih.gov/32019187/).
@@ -1080,18 +1096,18 @@ gwas.fgsea %>%
     knitr::kable()
 ```
 
-| pathway                                     | pval | padj |   log2err |        ES |      NES | size | topGenes               |
-|:--------------------------------------------|-----:|-----:|----------:|----------:|---------:|-----:|:-----------------------|
-| Educational attainment                      |    0 |    0 | 1.2709130 | 0.4886054 | 1.261758 | 2506 | NRL, PITPNM3, TIA1     |
-| Height                                      |    0 |    0 | 1.0768682 | 0.4457961 | 1.154075 | 6732 | NRL, LRP4, RTKN2       |
-| Smoking initiation                          |    0 |    0 | 0.9214260 | 0.4779175 | 1.229387 | 1469 | RPGRIP1, SYT1, DSCAML1 |
-| Refractive error                            |    0 |    0 | 0.8986712 | 0.5491901 | 1.391270 |  439 | GNGT2, FRMPD2, RPGRIP1 |
-| Educational attainment (MTAG)               |    0 |    0 | 0.8986712 | 0.4980063 | 1.275362 |  959 | NRL, CADM1, SYT1       |
-| Schizophrenia                               |    0 |    0 | 0.8870750 | 0.4879411 | 1.252594 | 1197 | LRP4, RTKN2, RP1       |
-| Highest math class taken (MTAG)             |    0 |    0 | 0.8753251 | 0.5055728 | 1.291978 |  783 | SYT1, RBPMS2, TFAP2B   |
-| Total PHF-tau (SNP x SNP interaction)       |    0 |    0 | 0.8513391 | 0.4721885 | 1.214577 | 1482 | RTKN2, PDGFD, CADM1    |
-| Body mass index                             |    0 |    0 | 0.8266573 | 0.4559753 | 1.176171 | 2251 | LRP4, GDPD3, CADM1     |
-| Educational attainment (years of education) |    0 |    0 | 0.8266573 | 0.4846598 | 1.242088 | 1006 | NRL, SYT1, RBPMS2      |
+| pathway | pval | padj | log2err | ES | NES | size | topGenes |
+|:---|---:|---:|---:|---:|---:|---:|:---|
+| Educational attainment | 0 | 0 | 1.2871037 | 0.4886563 | 1.263264 | 2506 | NRL, PITPNM3, TIA1 |
+| Height | 0 | 0 | 1.0574636 | 0.4458673 | 1.154214 | 6732 | NRL, LRP4, RTKN2 |
+| Smoking initiation | 0 | 0 | 0.9101197 | 0.4779626 | 1.231593 | 1469 | RPGRIP1, SYT1, DSCAML1 |
+| Schizophrenia | 0 | 0 | 0.9101197 | 0.4879909 | 1.254645 | 1197 | LRP4, RTKN2, RP1 |
+| Refractive error | 0 | 0 | 0.8986712 | 0.5492400 | 1.390624 | 439 | GNGT2, FRMPD2, RPGRIP1 |
+| Educational attainment (MTAG) | 0 | 0 | 0.8986712 | 0.4980596 | 1.275581 | 959 | NRL, CADM1, SYT1 |
+| Total PHF-tau (SNP x SNP interaction) | 0 | 0 | 0.8634154 | 0.4722407 | 1.216890 | 1482 | RTKN2, PDGFD, CADM1 |
+| Body mass index | 0 | 0 | 0.8513391 | 0.4560247 | 1.178394 | 2251 | LRP4, GDPD3, CADM1 |
+| Highest math class taken (MTAG) | 0 | 0 | 0.8513391 | 0.5056187 | 1.290869 | 783 | SYT1, RBPMS2, TFAP2B |
+| Educational attainment (years of education) | 0 | 0 | 0.8012156 | 0.4847052 | 1.242009 | 1006 | NRL, SYT1, RBPMS2 |
 
 # Deliverables (2pt)
 
